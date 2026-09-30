@@ -1,0 +1,584 @@
+{
+  "2": [
+    {
+      "dimension": "nether",
+      "elapsedMs": 4040,
+      "ready": true,
+      "view": "home",
+      "seed": "642018",
+      "preset": "flat",
+      "naturalSpawning": false,
+      "fps": 7,
+      "tps": 0,
+      "tickMs": 0,
+      "session": 1,
+      "backlog": 0,
+      "meshes": 135,
+      "faces": 76328,
+      "gpu": {
+        "geometries": 36,
+        "textures": 1,
+        "programs": 5,
+        "entityObjects": 0
+      },
+      "environment": {
+        "dimension": "nether",
+        "sunVisible": false,
+        "cloudsVisible": false,
+        "daylight": 0
+      },
+      "jobs": {
+        "generationMs": 12.900000000372529,
+        "meshMs": 82.19999999925494,
+        "lightMs": 37.59999999962747,
+        "stampMs": 0.7999999998137355,
+        "lightColumns": 25
+      },
+      "audio": {
+        "unlocked": false,
+        "running": false,
+        "volume": 0.35,
+        "active": 0
+      },
+      "panel": null,
+      "save": {
+        "phase": "idle",
+        "durable": true,
+        "busy": false,
+        "dirty": true,
+        "savedAt": 1790450285248,
+        "warning": "",
+        "error": "",
+        "active": {
+          "id": "01ac3af93a81375239e52e3175bba169",
+          "name": "Плоская лаборатория",
+          "createdAt": 1790450285248,
+          "updatedAt": 1790450285248,
+          "revision": 1,
+          "seed": "642018",
+          "preset": "flat",
+          "tick": 0,
+          "changedBlocks": 0,
+          "bytes": 1482
+        },
+        "recovered": false
+      }
+    },
+    {
+      "dimension": "end",
+      "elapsedMs": 2262,
+      "ready": true,
+      "view": "home",
+      "seed": "642018",
+      "preset": "flat",
+      "naturalSpawning": false,
+      "fps": 5,
+      "tps": 0,
+      "tickMs": 0,
+      "session": 1,
+      "backlog": 0,
+      "meshes": 76,
+      "faces": 64790,
+      "gpu": {
+        "geometries": 29,
+        "textures": 1,
+        "programs": 6,
+        "entityObjects": 11
+      },
+      "environment": {
+        "dimension": "end",
+        "sunVisible": false,
+        "cloudsVisible": false,
+        "daylight": 0
+      },
+      "jobs": {
+        "generationMs": 12.900000000372529,
+        "meshMs": 82.19999999925494,
+        "lightMs": 37.59999999962747,
+        "stampMs": 0.7999999998137355,
+        "lightColumns": 49
+      },
+      "audio": {
+        "unlocked": false,
+        "running": false,
+        "volume": 0.35,
+        "active": 0
+      },
+      "panel": null,
+      "save": {
+        "phase": "idle",
+        "durable": true,
+        "busy": false,
+        "dirty": true,
+        "savedAt": 1790450285248,
+        "warning": "",
+        "error": "",
+        "active": {
+          "id": "01ac3af93a81375239e52e3175bba169",
+          "name": "Плоская лаборатория",
+          "createdAt": 1790450285248,
+          "updatedAt": 1790450285248,
+          "revision": 1,
+          "seed": "642018",
+          "preset": "flat",
+          "tick": 0,
+          "changedBlocks": 0,
+          "bytes": 1482
+        },
+        "recovered": false
+      }
+    },
+    {
+      "dimension": "overworld",
+      "elapsedMs": 995,
+      "ready": true,
+      "view": "pause",
+      "seed": "642018",
+      "preset": "flat",
+      "naturalSpawning": false,
+      "fps": 7,
+      "tps": 0,
+      "tickMs": 0.20642493614034785,
+      "session": 1,
+      "backlog": 0,
+      "meshes": 25,
+      "faces": 15680,
+      "gpu": {
+        "geometries": 17,
+        "textures": 1,
+        "programs": 8,
+        "entityObjects": 0
+      },
+      "environment": {
+        "dimension": "overworld",
+        "sunVisible": true,
+        "cloudsVisible": true,
+        "daylight": 0.2700465635554116
+      },
+      "jobs": {
+        "generationMs": 12.900000000372529,
+        "meshMs": 82.19999999925494,
+        "lightMs": 37.59999999962747,
+        "stampMs": 0.7999999998137355,
+        "lightColumns": 25
+      },
+      "audio": {
+        "unlocked": true,
+        "running": true,
+        "volume": 0.35,
+        "active": 0
+      },
+      "panel": null,
+      "save": {
+        "phase": "saved",
+        "durable": true,
+        "busy": false,
+        "dirty": true,
+        "savedAt": 1790450297157,
+        "warning": "",
+        "error": "",
+        "active": {
+          "id": "01ac3af93a81375239e52e3175bba169",
+          "name": "Плоская лаборатория",
+          "createdAt": 1790450285248,
+          "updatedAt": 1790450297157,
+          "revision": 2,
+          "seed": "642018",
+          "preset": "flat",
+          "tick": 38,
+          "changedBlocks": 149,
+          "bytes": 9037
+        },
+        "recovered": false
+      }
+    }
+  ],
+  "4": [
+    {
+      "dimension": "nether",
+      "elapsedMs": 20491,
+      "ready": true,
+      "view": "home",
+      "seed": "642018",
+      "preset": "flat",
+      "naturalSpawning": false,
+      "fps": 4,
+      "tps": 0,
+      "tickMs": 0,
+      "session": 1,
+      "backlog": 0,
+      "meshes": 468,
+      "faces": 217279,
+      "gpu": {
+        "geometries": 104,
+        "textures": 1,
+        "programs": 5,
+        "entityObjects": 0
+      },
+      "environment": {
+        "dimension": "nether",
+        "sunVisible": false,
+        "cloudsVisible": false,
+        "daylight": 0
+      },
+      "jobs": {
+        "generationMs": 33.90000000037253,
+        "meshMs": 70.29999999981374,
+        "lightMs": 74.70000000018626,
+        "stampMs": 0.7999999998137355,
+        "lightColumns": 81
+      },
+      "audio": {
+        "unlocked": false,
+        "running": false,
+        "volume": 0.35,
+        "active": 0
+      },
+      "panel": null,
+      "save": {
+        "phase": "idle",
+        "durable": true,
+        "busy": false,
+        "dirty": true,
+        "savedAt": 1790450317669,
+        "warning": "",
+        "error": "",
+        "active": {
+          "id": "8a4cb488bd9e2b9db9374da841fe13a1",
+          "name": "Плоская лаборатория",
+          "createdAt": 1790450317669,
+          "updatedAt": 1790450317669,
+          "revision": 1,
+          "seed": "642018",
+          "preset": "flat",
+          "tick": 0,
+          "changedBlocks": 0,
+          "bytes": 1482
+        },
+        "recovered": false
+      }
+    },
+    {
+      "dimension": "end",
+      "elapsedMs": 3401,
+      "ready": true,
+      "view": "home",
+      "seed": "642018",
+      "preset": "flat",
+      "naturalSpawning": false,
+      "fps": 5,
+      "tps": 0,
+      "tickMs": 0,
+      "session": 1,
+      "backlog": 0,
+      "meshes": 88,
+      "faces": 73308,
+      "gpu": {
+        "geometries": 35,
+        "textures": 1,
+        "programs": 6,
+        "entityObjects": 11
+      },
+      "environment": {
+        "dimension": "end",
+        "sunVisible": false,
+        "cloudsVisible": false,
+        "daylight": 0
+      },
+      "jobs": {
+        "generationMs": 33.90000000037253,
+        "meshMs": 78,
+        "lightMs": 74.70000000018626,
+        "stampMs": 0.7999999998137355,
+        "lightColumns": 80
+      },
+      "audio": {
+        "unlocked": false,
+        "running": false,
+        "volume": 0.35,
+        "active": 0
+      },
+      "panel": null,
+      "save": {
+        "phase": "idle",
+        "durable": true,
+        "busy": false,
+        "dirty": true,
+        "savedAt": 1790450317669,
+        "warning": "",
+        "error": "",
+        "active": {
+          "id": "8a4cb488bd9e2b9db9374da841fe13a1",
+          "name": "Плоская лаборатория",
+          "createdAt": 1790450317669,
+          "updatedAt": 1790450317669,
+          "revision": 1,
+          "seed": "642018",
+          "preset": "flat",
+          "tick": 0,
+          "changedBlocks": 0,
+          "bytes": 1482
+        },
+        "recovered": false
+      }
+    },
+    {
+      "dimension": "overworld",
+      "elapsedMs": 3241,
+      "ready": true,
+      "view": "pause",
+      "seed": "642018",
+      "preset": "flat",
+      "naturalSpawning": false,
+      "fps": 5,
+      "tps": 0,
+      "tickMs": 0.5104910000443087,
+      "session": 1,
+      "backlog": 0,
+      "meshes": 81,
+      "faces": 46656,
+      "gpu": {
+        "geometries": 32,
+        "textures": 1,
+        "programs": 6,
+        "entityObjects": 0
+      },
+      "environment": {
+        "dimension": "overworld",
+        "sunVisible": true,
+        "cloudsVisible": true,
+        "daylight": 0.2636769720438147
+      },
+      "jobs": {
+        "generationMs": 33.90000000037253,
+        "meshMs": 78,
+        "lightMs": 74.70000000018626,
+        "stampMs": 0.7999999998137355,
+        "lightColumns": 81
+      },
+      "audio": {
+        "unlocked": true,
+        "running": true,
+        "volume": 0.35,
+        "active": 0
+      },
+      "panel": null,
+      "save": {
+        "phase": "saved",
+        "durable": true,
+        "busy": false,
+        "dirty": true,
+        "savedAt": 1790450344919,
+        "warning": "",
+        "error": "",
+        "active": {
+          "id": "8a4cb488bd9e2b9db9374da841fe13a1",
+          "name": "Плоская лаборатория",
+          "createdAt": 1790450317669,
+          "updatedAt": 1790450344919,
+          "revision": 2,
+          "seed": "642018",
+          "preset": "flat",
+          "tick": 5,
+          "changedBlocks": 149,
+          "bytes": 9035
+        },
+        "recovered": false
+      }
+    }
+  ],
+  "5": [
+    {
+      "dimension": "nether",
+      "elapsedMs": 29818,
+      "ready": true,
+      "view": "home",
+      "seed": "642018",
+      "preset": "flat",
+      "naturalSpawning": false,
+      "fps": 4,
+      "tps": 0,
+      "tickMs": 0,
+      "session": 1,
+      "backlog": 0,
+      "meshes": 718,
+      "faces": 324608,
+      "gpu": {
+        "geometries": 161,
+        "textures": 1,
+        "programs": 5,
+        "entityObjects": 0
+      },
+      "environment": {
+        "dimension": "nether",
+        "sunVisible": false,
+        "cloudsVisible": false,
+        "daylight": 0
+      },
+      "jobs": {
+        "generationMs": 52.10000000055879,
+        "meshMs": 68.1000000005588,
+        "lightMs": 54.200000000186265,
+        "stampMs": 0.7999999998137355,
+        "lightColumns": 121
+      },
+      "audio": {
+        "unlocked": false,
+        "running": false,
+        "volume": 0.35,
+        "active": 0
+      },
+      "panel": null,
+      "save": {
+        "phase": "idle",
+        "durable": true,
+        "busy": false,
+        "dirty": true,
+        "savedAt": 1790450388625,
+        "warning": "",
+        "error": "",
+        "active": {
+          "id": "cf56dc112f9d2dfb8d1a6d8b461b17f4",
+          "name": "Плоская лаборатория",
+          "createdAt": 1790450388625,
+          "updatedAt": 1790450388625,
+          "revision": 1,
+          "seed": "642018",
+          "preset": "flat",
+          "tick": 0,
+          "changedBlocks": 0,
+          "bytes": 1482
+        },
+        "recovered": false
+      }
+    },
+    {
+      "dimension": "end",
+      "elapsedMs": 3644,
+      "ready": true,
+      "view": "home",
+      "seed": "642018",
+      "preset": "flat",
+      "naturalSpawning": false,
+      "fps": 4,
+      "tps": 0,
+      "tickMs": 0,
+      "session": 1,
+      "backlog": 0,
+      "meshes": 88,
+      "faces": 73308,
+      "gpu": {
+        "geometries": 35,
+        "textures": 1,
+        "programs": 6,
+        "entityObjects": 11
+      },
+      "environment": {
+        "dimension": "end",
+        "sunVisible": false,
+        "cloudsVisible": false,
+        "daylight": 0
+      },
+      "jobs": {
+        "generationMs": 52.10000000055879,
+        "meshMs": 68.1000000005588,
+        "lightMs": 54.200000000186265,
+        "stampMs": 0.7999999998137355,
+        "lightColumns": 96
+      },
+      "audio": {
+        "unlocked": false,
+        "running": false,
+        "volume": 0.35,
+        "active": 0
+      },
+      "panel": null,
+      "save": {
+        "phase": "idle",
+        "durable": true,
+        "busy": false,
+        "dirty": true,
+        "savedAt": 1790450388625,
+        "warning": "",
+        "error": "",
+        "active": {
+          "id": "cf56dc112f9d2dfb8d1a6d8b461b17f4",
+          "name": "Плоская лаборатория",
+          "createdAt": 1790450388625,
+          "updatedAt": 1790450388625,
+          "revision": 1,
+          "seed": "642018",
+          "preset": "flat",
+          "tick": 0,
+          "changedBlocks": 0,
+          "bytes": 1482
+        },
+        "recovered": false
+      }
+    },
+    {
+      "dimension": "overworld",
+      "elapsedMs": 4714,
+      "ready": true,
+      "view": "pause",
+      "seed": "642018",
+      "preset": "flat",
+      "naturalSpawning": false,
+      "fps": 4,
+      "tps": 0,
+      "tickMs": 0.30899999994784594,
+      "session": 1,
+      "backlog": 0,
+      "meshes": 121,
+      "faces": 68288,
+      "gpu": {
+        "geometries": 44,
+        "textures": 1,
+        "programs": 6,
+        "entityObjects": 0
+      },
+      "environment": {
+        "dimension": "overworld",
+        "sunVisible": true,
+        "cloudsVisible": true,
+        "daylight": 0.26309790755420015
+      },
+      "jobs": {
+        "generationMs": 52.10000000055879,
+        "meshMs": 68.1000000005588,
+        "lightMs": 54.200000000186265,
+        "stampMs": 0.7999999998137355,
+        "lightColumns": 121
+      },
+      "audio": {
+        "unlocked": true,
+        "running": true,
+        "volume": 0.35,
+        "active": 0
+      },
+      "panel": null,
+      "save": {
+        "phase": "saved",
+        "durable": true,
+        "busy": false,
+        "dirty": true,
+        "savedAt": 1790450427510,
+        "warning": "",
+        "error": "",
+        "active": {
+          "id": "cf56dc112f9d2dfb8d1a6d8b461b17f4",
+          "name": "Плоская лаборатория",
+          "createdAt": 1790450388625,
+          "updatedAt": 1790450427510,
+          "revision": 2,
+          "seed": "642018",
+          "preset": "flat",
+          "tick": 2,
+          "changedBlocks": 149,
+          "bytes": 9023
+        },
+        "recovered": false
+      }
+    }
+  ]
+}

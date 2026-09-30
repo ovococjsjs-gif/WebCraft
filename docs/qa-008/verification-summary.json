@@ -1,0 +1,50 @@
+{
+  "release": {
+    "app": "0.8.0",
+    "save": 6,
+    "generator": 4,
+    "protocol": 6,
+    "recipes": 2,
+    "bytes": 1172369,
+    "sha256": "807420db74c1d1f0ed7d62fd8ff017b39958855c377d09c6a9e1121d176fbe08"
+  },
+  "validation": {
+    "cleanNpmCi": true,
+    "format": true,
+    "typecheck": true,
+    "eslint": true,
+    "unitTests": 428,
+    "unitFiles": 26,
+    "browserTests": 41,
+    "browserFailures": 0,
+    "browserFlaky": 0,
+    "browserSkipped": 0,
+    "browserDurationSeconds": 1169.1,
+    "historicalGoldenSaves": 6,
+    "historicalReleasesUnchanged": 7,
+    "nodeWorkerDigest": "a1e33cb7",
+    "npmAuditVulnerabilities": 0
+  },
+  "gpuProbe": {
+    "waves": 20,
+    "arrowsPerWave": 24,
+    "mobsPerWave": 6,
+    "minGeometries": 3,
+    "maxGeometries": 3,
+    "remainingEntityObjects": 0
+  },
+  "environment": {
+    "node": "20.20.2",
+    "playwright": "1.63.0",
+    "renderer": "Chromium / SwiftShader",
+    "deviceBenchmark": false
+  },
+  "notVerified": [
+    "Real GPU frame budgets",
+    "Firefox and Safari",
+    "Touch gameplay",
+    "Multi-hour soak",
+    "Continuous human survival playthrough from first tree to dragon",
+    "Subjective UX and audio balance"
+  ]
+}

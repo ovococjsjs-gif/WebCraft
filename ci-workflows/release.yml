@@ -1,0 +1,26 @@
+name: Release gate
+on: [push, pull_request]
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run release:check
+      - run: node -e 'console.log("VOXEL_RELEASE=voxel-lab-" + require("./package.json").version)' >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: voxel-lab-release-and-test-evidence
+          path: |
+            releases/${{ env.VOXEL_RELEASE }}.html
+            releases/${{ env.VOXEL_RELEASE }}.manifest.json
+            .cache/playwright-results
+            .cache/browser-results.json
+          include-hidden-files: true

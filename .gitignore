@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.cache/
+coverage/
+playwright-report/
+test-results/
+.env
+*.local
+releases-exe/

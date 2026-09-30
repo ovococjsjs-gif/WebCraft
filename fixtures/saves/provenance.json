@@ -1,0 +1,68 @@
+[
+  {
+    "release": "0.2.0",
+    "preset": "flat",
+    "format": 1,
+    "generator": 1,
+    "source": "releases/voxel-lab-0.2.0.html",
+    "sourceSha256": "ace455cd42966ff47efbace0b2319d5b865bf490960a3304669a9d0374143654",
+    "fixture": "release-0.2.0-flat.voxel.json",
+    "fixtureSha256": "e3be6ea65df72bb81ccde318607903b52e317330d8769ee6943a16fa0874b4ba",
+    "method": "Export through the archived standalone UI in Chromium; not synthesized from the new codec."
+  },
+  {
+    "release": "0.3.0",
+    "preset": "flat",
+    "format": 2,
+    "generator": 1,
+    "source": "releases/voxel-lab-0.3.0.html",
+    "sourceSha256": "fd2a16b4a6d681fde05768393d59fb01afb7c8a042f4cbc42ea9e2c4cca2691d",
+    "fixture": "release-0.3.0-flat.voxel.json",
+    "fixtureSha256": "d1f3bdeeefd575422150489e92209f0703bed69826c0d9fe1c26927f2f28904d",
+    "method": "Export through the archived standalone UI in Chromium; not synthesized from the new codec."
+  },
+  {
+    "release": "0.4.0",
+    "preset": "flat",
+    "format": 4,
+    "generator": 1,
+    "source": "releases/voxel-lab-0.4.0.html",
+    "sourceSha256": "36d1a2122aaebe8c08382e187d579cef1a8c6bdd5523528a8c12471e8feacebf",
+    "fixture": "release-0.4.0-flat.voxel.json",
+    "fixtureSha256": "2313d5e2b190138ccafe3ef7ae760afd183e3b41eba8f32ec428d4c61542f3fa",
+    "method": "Export through the archived standalone UI in Chromium; not synthesized from the new codec."
+  },
+  {
+    "release": "0.5.0",
+    "preset": "flat",
+    "format": 4,
+    "generator": 1,
+    "source": "releases/voxel-lab-0.5.0.html",
+    "sourceSha256": "608f64f890a89fe433aa0ff1bf55eb63605b1180de454c6c71bf3393d7ace26d",
+    "fixture": "release-0.5.0-flat.voxel.json",
+    "fixtureSha256": "5c603864167722232604ab1453534f3f7487785db8c34b64e0b0b3013ab41fa1",
+    "method": "Export through the archived standalone UI in Chromium; not synthesized from the new codec."
+  },
+  {
+    "release": "0.6.0",
+    "preset": "overworld",
+    "format": 4,
+    "generator": 2,
+    "source": "releases/voxel-lab-0.6.0.html",
+    "sourceSha256": "d4d36d31b565249ec719f1f1c8a6546a141639de390852a9aa3c37d85d572b8c",
+    "fixture": "release-0.6.0-overworld.voxel.json",
+    "fixtureSha256": "5db1d1e9a7e5ceffb5ba2be5f55ba6ad8c33cdf3d25b06e5fe37e7592ac25643",
+    "method": "Export through the archived standalone UI in Chromium; not synthesized from the new codec."
+  },
+  {
+    "release": "0.7.0",
+    "preset": "flat",
+    "format": 5,
+    "generator": 3,
+    "source": "releases/voxel-lab-0.7.0.html",
+    "sourceSha256": "a03dec1fa7df85a94bedae85f44e66bcf5f677c1063ca39f61471d001d7050bb",
+    "fixture": "release-0.7.0-flat.voxel.json",
+    "fixtureSha256": "6b5934aff231487c77089dcd855d7253d92901081c09afa7be44fb0cb1158f64",
+    "method": "Export through the archived standalone UI in Chromium; not synthesized from the new codec."
+  }
+]

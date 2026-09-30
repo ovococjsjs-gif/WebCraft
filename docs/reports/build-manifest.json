@@ -1,0 +1,212 @@
+{
+  "version": "0.7.0",
+  "date": "2026-09-26",
+  "unitTestsPassed": 352,
+  "unitTestFiles": 25,
+  "browserTestsPassed": 31,
+  "artifact": "releases/voxel-lab-0.7.0.html",
+  "bytes": 1115786,
+  "sha256": "a03dec1fa7df85a94bedae85f44e66bcf5f677c1063ca39f61471d001d7050bb",
+  "standaloneWorker": "classic Blob worker; no file:// or opaque-origin dependency",
+  "persistence": {
+    "format": "voxel-lab/world",
+    "version": 5,
+    "checksum": "SHA-256",
+    "backend": "IndexedDB voxel-lab-worlds v1",
+    "autosave": "debounce 1200 ms + 15 s interval, only when dirty",
+    "backup": "previous verified envelope",
+    "degradedMode": "in-memory with an explicit warning",
+    "payload": "inventory (41 slots) + cursor + containers (chests/furnaces/hoppers/dispensers) + dropped items + overrides + time + survival with effects + mobs + arrows + orbs + world systems (fluids, fire, fuses, falling blocks, redstone power) + enchantments + brewing stands + minecarts + the dimensions left behind (mobs, chests, fire, redstone, carts, bosses of each) + bosses of the current dimension + block edits with their dimension",
+    "migration": "v1, v2, v3 and v4 files are migrated and flagged as migrated; an older checksum is verified against the original raw shape of that version",
+    "generation": {
+      "generatorVersion": 3,
+      "worldTypes": [
+        "overworld",
+        "large-biomes",
+        "amplified",
+        "valley",
+        "flat"
+      ],
+      "biomes": 11,
+      "seaLevel": 30,
+      "oreRules": 8,
+      "structures": [
+        "dungeon",
+        "mineshaft",
+        "village",
+        "pyramid",
+        "stronghold"
+      ],
+      "deterministic": "pure function of column coordinates and seed; independent of generation order",
+      "oldScenicSaves": "generator version 1 files of the flat and valley scenes keep loading; a biome world claiming an older version is rejected, because version 3 added the strongholds"
+    }
+  },
+  "coreTasks": {
+    "\u041f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u043e": 61,
+    "\u0427\u0430\u0441\u0442\u0438\u0447\u043d\u043e": 14,
+    "\u0413\u043e\u0442\u043e\u0432\u043e": 10,
+    "\u041d\u0435 \u043d\u0430\u0447\u0430\u0442\u043e": 2
+  },
+  "survival": {
+    "health": 20,
+    "armorFormula": "effective = max(points/5, points - damage/(2 + toughness/4)); reduction = damage * (1 - effective/25)",
+    "ironSwordDamage": 6,
+    "walkerDamage": 3,
+    "walkerDamageHard": 4.5,
+    "walkerXp": 5,
+    "eatTicks": 32,
+    "dayTicks": 24000,
+    "effects": 13,
+    "difficulty": [
+      "peaceful",
+      "easy",
+      "normal",
+      "hard"
+    ],
+    "difficultyDamageScale": [
+      0,
+      0.5,
+      1,
+      1.5
+    ]
+  },
+  "referenceConformanceTested": false,
+  "physicalGPUPerformanceCertified": false,
+  "notProven": [
+    "\u0441\u043e\u043e\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0435 \u0433\u0435\u043d\u0435\u0440\u0430\u0446\u0438\u0438, \u0447\u0438\u0441\u0435\u043b \u0438 \u0442\u0430\u0431\u043b\u0438\u0446 \u043b\u0443\u0442\u0430 Minecraft Java Edition 1.12.2 (E00, E14-01, E14-11)",
+    "\u043f\u043e\u043b\u043d\u044b\u0439 \u043a\u0430\u0442\u0430\u043b\u043e\u0433 \u0431\u0438\u043e\u043c\u043e\u0432 1.12.2 \u0438 \u0441\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u044b, \u043a\u043e\u0442\u043e\u0440\u044b\u0445 \u0435\u0449\u0451 \u043d\u0435\u0442: \u043a\u0440\u0435\u043f\u043e\u0441\u0442\u0438, \u0445\u0440\u0430\u043c\u044b, \u0438\u0433\u043b\u0443, \u043c\u043e\u043d\u0443\u043c\u0435\u043d\u0442\u044b, \u043e\u0441\u043e\u0431\u043d\u044f\u043a\u0438, \u0441\u043e\u043a\u0440\u043e\u0432\u0438\u0449\u043d\u0438\u0446\u044b",
+    "\u041d\u0438\u0436\u043d\u0438\u0439 \u043c\u0438\u0440 \u0438 \u041a\u0440\u0430\u0439 \u0432\u043c\u0435\u0441\u0442\u0435 \u0441 \u043f\u043e\u0440\u0442\u0430\u043b\u0430\u043c\u0438 \u0438 \u0431\u043e\u0441\u0441\u0430\u043c\u0438 (E14-07, E14-08, E15)",
+    "\u043f\u043e\u0433\u043e\u0434\u0430 \u0438 \u0433\u0440\u043e\u0437\u044b, \u0442\u043e\u0440\u0433\u043e\u0432\u043b\u044f \u0441 \u0436\u0438\u0442\u0435\u043b\u044f\u043c\u0438, \u0441\u043e\u0445\u0440\u0430\u043d\u044f\u0435\u043c\u043e\u0435 \u043e\u0441\u0432\u0435\u0449\u0435\u043d\u0438\u0435 (E06-02)",
+    "\u043f\u0440\u043e\u0438\u0437\u0432\u043e\u0434\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u043f\u043e\u0434\u0433\u0440\u0443\u0437\u043a\u0438 \u0431\u0438\u043e\u043c\u043d\u043e\u0433\u043e \u043c\u0438\u0440\u0430 \u043d\u0430 \u0441\u043b\u0430\u0431\u043e\u043c \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0435: \u0437\u0430\u043c\u0435\u0440\u044b \u0441\u0434\u0435\u043b\u0430\u043d\u044b \u043d\u0430 \u043f\u0435\u0440\u0432\u044b\u0445 \u043a\u043e\u043b\u043e\u043d\u043a\u0430\u0445 \u0438 \u043f\u043e\u0434 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u043d\u044b\u043c WebGL"
+  ],
+  "iteration": 6,
+  "headlessDigest": "a1e33cb7",
+  "worldSystems": {
+    "fluids": {
+      "water": "level 1..7, delay 5 ticks",
+      "lava": "level 1..3, delay 30 ticks",
+      "budget": 4096,
+      "waterLava": "stone / cobblestone / obsidian"
+    },
+    "fire": {
+      "maxCells": 4096,
+      "spreadChance": 0.12,
+      "burnTicks": 300
+    },
+    "explosions": {
+      "tntFuse": 80,
+      "tntBlast": 4,
+      "fireChance": 0.3
+    },
+    "farming": {
+      "light": 9,
+      "growthWet": 0.12,
+      "growthDry": 0.05,
+      "stages": 6,
+      "boneMeal": [
+        2,
+        5
+      ]
+    },
+    "redstone": {
+      "maxPower": 15,
+      "budget": 6144,
+      "repeaterTicksPerSetting": 2,
+      "buttonTicks": 10,
+      "pistonLimit": 12
+    },
+    "stations": {
+      "brewTicks": 400,
+      "brewBottles": 3,
+      "enchants": 7,
+      "offers": 3,
+      "lapisPerOffer": 1,
+      "anvilCostRange": [
+        1,
+        39
+      ]
+    },
+    "vehicles": {
+      "cartMaxSpeed": 8,
+      "acceleration": 0.6,
+      "friction": 0.04,
+      "maxCarts": 64
+    }
+  },
+  "mobRoster": [
+    "lab:zombie",
+    "lab:skeleton",
+    "lab:creeper",
+    "lab:spider",
+    "lab:cow",
+    "lab:sheep",
+    "lab:pig",
+    "lab:chicken",
+    "lab:dummy",
+    "lab:walker"
+  ],
+  "backlogTasks": {
+    "\u0427\u0430\u0441\u0442\u0438\u0447\u043d\u043e": 58,
+    "\u041f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u043e": 57,
+    "\u041d\u0435 \u043d\u0430\u0447\u0430\u0442\u043e": 63,
+    "\u0413\u043e\u0442\u043e\u0432\u043e": 20,
+    "\u0422\u0440\u0435\u0431\u0443\u0435\u0442 \u0440\u0435\u0448\u0435\u043d\u0438\u044f": 5
+  },
+  "allowedStatusesChecked": true,
+  "browserSuiteSeconds": 834,
+  "checks": {
+    "formatCheck": "pass",
+    "typecheck": "pass",
+    "lint": "pass",
+    "unitTests": "339 passed / 24 files",
+    "browserTests": "31 passed in 13.9 m",
+    "build": "pass",
+    "headlessDigest": "a1e33cb7",
+    "logs": [
+      "docs/reports/check.log",
+      "docs/reports/browser-check.log",
+      "docs/reports/headless-node.json"
+    ]
+  },
+  "dimensions": {
+    "ids": [
+      "overworld",
+      "nether",
+      "end"
+    ],
+    "coordinateScale": {
+      "overworld": 1,
+      "nether": 8,
+      "end": 1
+    },
+    "portalDelayTicks": {
+      "overworld": 80,
+      "nether": 80,
+      "end": 1
+    },
+    "statePerDimension": "columns, light, fluids, falling blocks, fire, redstone, plants, containers, mobs, dropped items, arrows, orbs, carts, bosses",
+    "portals": "frames of obsidian 2-4 x 3-5 lit with flint and steel; End ring of twelve frames with eyes of ender; exit portal after the dragon"
+  },
+  "bosses": {
+    "ender_dragon": {
+      "health": 200,
+      "phases": [
+        "circling",
+        "charging",
+        "perched"
+      ],
+      "contactDamage": 6,
+      "crystals": 10,
+      "crystalHeal": "1 HP every 10 ticks within 40 blocks",
+      "death": "dragon egg, exit portal, 3200 experience"
+    },
+    "wither": {
+      "health": 300,
+      "contactDamage": 5,
+      "skullDamage": 8,
+      "skullExplosion": 2,
+      "ritual": "T of four soul sand, three wither skeleton skulls",
+      "death": "nether star, 50 experience"
+    }
+  }
+}

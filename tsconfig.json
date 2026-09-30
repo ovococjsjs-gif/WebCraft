@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "types": ["vite/client", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["packages/core/src/*"],
+      "@content/*": ["packages/content/src/*"],
+      "@renderer/*": ["packages/renderer/src/*"],
+      "@network/*": ["packages/network/src/*"],
+      "@ui/*": ["packages/ui/src/*"],
+      "@storage/*": ["packages/storage/src/*"]
+    }
+  },
+  "include": ["apps", "packages", "tests", "scripts", "*.ts"]
+}

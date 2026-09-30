@@ -1,0 +1,51 @@
+{
+  "name": "webcraft",
+  "version": "0.12.0",
+  "private": true,
+  "type": "module",
+  "description": "WebCraft — independent browser block game. Java Edition 1.12.2 is the compatibility target, not a claim of current parity.",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write apps packages tests scripts *.json *.ts",
+    "format:check": "prettier --check apps packages tests scripts *.json *.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:browser": "npm run standalone && playwright test",
+    "browsers": "playwright install chromium",
+    "headless": "tsx apps/server/headless.ts",
+    "server": "tsx apps/server/src/main.ts",
+    "build:server": "tsx scripts/build-server.ts",
+    "build:exe": "tsx scripts/build-exe.ts",
+    "check": "npm run format:check && npm run typecheck && npm run lint && npm test && npm run build",
+    "standalone": "npm run build && tsx scripts/bundle-standalone.ts",
+    "release:check": "npm run check && npm run headless && tsx scripts/bundle-standalone.ts && playwright test && tsx scripts/verify-release.ts",
+    "verify:release": "tsx scripts/verify-release.ts"
+  },
+  "dependencies": {
+    "@noble/hashes": "2.4.0",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.20.4",
+    "@types/three": "0.180.0",
+    "eslint": "9.39.5",
+    "fake-indexeddb": "6.2.5",
+    "postject": "1.0.0-alpha.6",
+    "prettier": "3.9.9",
+    "resedit": "2.0.3",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.1",
+    "vite": "7.3.6",
+    "vitest": "4.1.11"
+  }
+}
