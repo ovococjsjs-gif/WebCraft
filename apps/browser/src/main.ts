@@ -2566,6 +2566,13 @@ if (import.meta.env.DEV) {
     /** Debug travel: the same road a portal takes, without the walk. */
     travel: (dimension: 'overworld' | 'nether' | 'end') => send({ type: 'travel', dimension }),
     teleport: (x: number, y: number, z: number) => send({ type: 'teleport', x, y, z }),
+    /** Debug: toggles creative flight without a keyboard (teleport already turns it on). */
+    fly: () => send({ type: 'fly' }),
+    /** Debug: camera view without the F5 key — 'first', 'back' (from behind) or 'front'. */
+    camera: (mode: 'first' | 'back' | 'front') => {
+      worldRenderer.cameraMode = mode;
+      document.body.dataset.camera = mode;
+    },
     weather: (rain: number | null, thunder = 0) => send({ type: 'weather', rain, thunder }),
     tuneHeld: (kind: string, patch: Record<string, unknown>) => worldRenderer.tuneHeld(kind, patch),
     hotbar: (index: number) => {
@@ -2660,6 +2667,8 @@ declare global {
       grant: (item: string, count?: number) => void;
       travel: (dimension: 'overworld' | 'nether' | 'end') => void;
       teleport: (x: number, y: number, z: number) => void;
+      fly: () => void;
+      camera: (mode: 'first' | 'back' | 'front') => void;
       weather: (rain: number | null, thunder?: number) => void;
       tuneHeld: (kind: string, patch: Record<string, unknown>) => void;
       hotbar: (index: number) => void;

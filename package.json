@@ -26,7 +26,9 @@
     "check": "npm run format:check && npm run typecheck && npm run lint && npm test && npm run build",
     "standalone": "npm run build && tsx scripts/bundle-standalone.ts",
     "release:check": "npm run check && npm run headless && tsx scripts/bundle-standalone.ts && playwright test && tsx scripts/verify-release.ts",
-    "verify:release": "tsx scripts/verify-release.ts"
+    "verify:release": "tsx scripts/verify-release.ts",
+    "catalog": "tsx scripts/catalog.ts",
+    "bench": "tsx scripts/bench-gen.ts"
   },
   "dependencies": {
     "@noble/hashes": "2.4.0",
