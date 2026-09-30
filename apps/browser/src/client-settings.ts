@@ -133,7 +133,7 @@ export function installClientSettings(
   $<HTMLSelectElement>('#fps-limit').value = String(graphics.fpsLimit);
   $<HTMLInputElement>('#render-scale').value = String(Math.round(graphics.scale * 100));
   $('#render-scale-label').textContent = `${Math.round(graphics.scale * 100)}%`;
-  for (const id of ['adaptive', 'particles', 'clouds', 'shaders'] as const)
+  for (const id of ['adaptive', 'particles', 'clouds', 'shaders', 'post'] as const)
     $<HTMLInputElement>('#' + id).checked = graphics[id];
   $<HTMLSelectElement>('#far-terrain').value = String(graphics.far);
   const update = () => {
@@ -145,6 +145,7 @@ export function installClientSettings(
       particles: $<HTMLInputElement>('#particles').checked,
       clouds: $<HTMLInputElement>('#clouds').checked,
       shaders: $<HTMLInputElement>('#shaders').checked,
+      post: $<HTMLInputElement>('#post').checked,
       far: Number($<HTMLSelectElement>('#far-terrain').value) as QualitySettings['far'],
     });
     $('#render-scale-label').textContent = `${Math.round(graphics.scale * 100)}%`;
@@ -160,6 +161,7 @@ export function installClientSettings(
     'particles',
     'clouds',
     'shaders',
+    'post',
     'far-terrain',
   ])
     $('#' + id).addEventListener('change', update);

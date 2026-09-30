@@ -8,6 +8,8 @@ export interface QualitySettings {
   clouds: boolean;
   /** Cheap per-pixel touches in the terrain programs (no extra passes). */
   shaders: boolean;
+  /** The finished frame: glow, vignette, colour grade, water and pain effects (see postfx.ts). */
+  post: boolean;
   /** Far terrain reach in blocks beyond the chunks; 0 turns it off. */
   far: FarReach;
 }
@@ -21,6 +23,7 @@ export const DEFAULT_QUALITY: QualitySettings = {
   particles: true,
   clouds: true,
   shaders: true,
+  post: true,
   far: 1024,
 };
 export const QUALITY = {
@@ -28,7 +31,7 @@ export const QUALITY = {
     dpr: 1,
     minScale: 0.65,
     particles: 64,
-    stars: 100,
+    stars: 160,
     /** Cloud grid: cells per side (12 blocks each). */
     clouds: 48,
     visibleDrops: 80,
@@ -38,7 +41,7 @@ export const QUALITY = {
     dpr: 1.25,
     minScale: 0.7,
     particles: 160,
-    stars: 220,
+    stars: 480,
     clouds: 72,
     visibleDrops: 160,
     uploadMs: 3,
@@ -47,7 +50,7 @@ export const QUALITY = {
     dpr: 1.75,
     minScale: 0.75,
     particles: 320,
-    stars: 380,
+    stars: 900,
     clouds: 110,
     visibleDrops: 320,
     uploadMs: 4,
@@ -62,6 +65,7 @@ export function sanitizeQuality(value: Partial<QualitySettings> = {}): QualitySe
     particles: value.particles !== false,
     clouds: value.clouds !== false,
     shaders: value.shaders !== false,
+    post: value.post !== false,
     far: FAR_REACHES.includes(value.far as FarReach) ? value.far! : DEFAULT_QUALITY.far,
   };
 }

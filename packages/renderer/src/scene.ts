@@ -1,5 +1,6 @@
 import { WeatherView } from './weather-view';
 import * as THREE from 'three';
+import { PostFX } from './postfx';
 import type { FarReach } from './quality';
 import { FarTerrain, type FarReply, type FarRequest } from './far-terrain';
 import { TerrainMaterials } from './terrain-material';
@@ -126,6 +127,7 @@ export class VoxelRenderer {
   readonly adaptive = new AdaptiveResolution();
   readonly clock = new PresentationClock();
   private readonly atmosphere: Atmosphere;
+  private readonly post: PostFX;
   private readonly terrain = new THREE.Group();
   private readonly meshes = new Map<string, TerrainEntry>();
   private readonly terrainMaterials: TerrainMaterials;
@@ -259,6 +261,7 @@ export class VoxelRenderer {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 0.95;
+    this.post = new PostFX(this.renderer);
     this.scene.add(this.terrain, this.camera);
     this.terrainMaterials = new TerrainMaterials(this.atlas.mipTexture);
     this.atmosphere = new Atmosphere(this.scene, this.terrainMaterials.light);
@@ -402,6 +405,7 @@ export class VoxelRenderer {
   setQuality(settings: QualitySettings) {
     this.settings = sanitizeQuality(settings);
     this.terrainMaterials.setShaders(this.settings.shaders);
+    this.post.enabled = this.settings.post;
     this.far.setShaders(this.settings.shaders);
     this.applyFarReach();
     this.needsFrame = true;
@@ -1284,6 +1288,7 @@ export class VoxelRenderer {
       this.reducedMotion,
       this.medium,
       { rain: this.weather.rain, thunder: this.weather.thunder, flash: this.weatherView.flash },
+      { tick: this.tick, pixelRatio: this.renderer.getPixelRatio() },
     );
     const e = this.atmosphere.state;
     this.far.update(this.camera.position);
@@ -1414,6 +1419,21 @@ export class VoxelRenderer {
       this.renderer.render(this.scene, this.handCamera);
       this.renderer.autoClear = autoClear;
     }
+    // The finished frame gets its glow, grade and pain/water effects last.
+    this.post.render(
+      {
+        daylight: e.level,
+        twilight: e.twilight,
+        dimension: this.dimension,
+        medium: this.medium,
+        rain: this.weather.rain,
+        thunder: this.weather.thunder,
+        hurt: this.hurtKick,
+        flash: this.weatherView.flash,
+        reducedMotion: this.reducedMotion,
+      },
+      time,
+    );
   }
   private syncBobber(b: { x: number; y: number; z: number; bite: boolean } | null) {
     if (!b) {
@@ -1574,6 +1594,7 @@ export class VoxelRenderer {
     this.drops.dispose();
     this.particles.dispose();
     this.weatherView.dispose();
+    this.post.dispose();
     this.models.dispose();
     this.held.dispose();
     this.atmosphere.dispose();

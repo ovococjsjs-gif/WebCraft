@@ -21,6 +21,8 @@ export class SharedLight {
   readonly day = { value: 1 };
   /** Colour of the sky at the horizon: what water reflects at grazing angles. */
   readonly horizon = { value: new THREE.Color('#c0d8ff') };
+  /** 0‥1 closeness to sunrise or sunset: drives the colour band along the horizon. */
+  readonly twilight = { value: 0 };
   uniforms() {
     return {
       voxelSky: this.sky,
@@ -32,13 +34,23 @@ export class SharedLight {
       voxelGlowPower: this.glowPower,
       voxelDay: this.day,
       voxelHorizon: this.horizon,
+      voxelTwilight: this.twilight,
     };
   }
 }
 
 /** GLSL shared by the terrain and far-terrain programs: grading and the sun-tinted fog. */
 export const SHARED_GLSL = /* glsl */ `
-uniform vec3 voxelSunDir;uniform vec3 voxelGlow;uniform float voxelGlowPower;uniform float voxelDay;uniform vec3 voxelHorizon;
+uniform vec3 voxelSunDir;uniform vec3 voxelGlow;uniform float voxelGlowPower;uniform float voxelDay;uniform vec3 voxelHorizon;uniform float voxelTwilight;
+// The band of colour that hugs the horizon at dawn and dusk: gold towards the sun, rose round the
+// rest, fading upwards. The sky and the fog of the land use the same one, so they meet without a seam.
+vec3 voxelTwilightBand(vec3 c,vec3 d){
+  float h=clamp(d.y,0.,1.);
+  float az=pow(max(dot(d,voxelSunDir),0.),1.6);
+  float band=exp(-h*6.5)*.8+exp(-h*1.8)*.2;
+  vec3 tint=mix(vec3(.9,.4,.5),vec3(1.,.6,.26),az);
+  return mix(c,tint,clamp(voxelTwilight*(.22+.7*az)*band,0.,1.));
+}
 vec3 voxelGrade(vec3 c){
 #ifdef VOXEL_SHADERS
   float l=dot(c,vec3(.299,.587,.114));
@@ -51,6 +63,7 @@ vec3 voxelFogColor(vec3 fogCol,vec3 viewDir){
 #ifdef VOXEL_SHADERS
   float s=max(dot(viewDir,voxelSunDir),0.0);
   fogCol=mix(fogCol,voxelGlow,(pow(s,6.0)*.85+pow(s,2.0)*.15)*voxelGlowPower);
+  fogCol=voxelTwilightBand(fogCol,viewDir);
 #endif
   return fogCol;
 }`;

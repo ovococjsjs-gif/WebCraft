@@ -1,13 +1,31 @@
 import * as THREE from 'three';
 import { daylight, solarElevation } from '../../core/src/world';
-import { pixelNoise, pixelCanvas } from './pixel-art';
+import { pixelNoise } from './pixel-art';
 import type { QualitySettings } from './quality';
 import { QUALITY } from './quality';
-import { SharedLight } from './terrain-material';
+import { SHARED_GLSL, SharedLight } from './terrain-material';
+import {
+  MOON_ATLAS,
+  buildStarField,
+  glowPixels,
+  meteorAt,
+  moonAtlasPixels,
+  moonCell,
+  moonLit,
+  moonPhaseAt,
+} from './sky';
 const smooth = (a: number, b: number, x: number) => {
   const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);
 };
+/**
+ * Unit vector from the eye towards the sun for a solar angle (0 = sunrise, π/2 = noon,
+ * π = sunset). As in the reference, the sun rises in the east (+x) and sets in the west (−x);
+ * its path leans a little towards the south (+z) in the morning and away from it in the evening.
+ */
+export function sunDirectionAt(angle: number, out = new THREE.Vector3()) {
+  return out.set(Math.cos(angle), Math.sin(angle), Math.cos(angle) * 0.18).normalize();
+}
 export function environmentAt(time: number, dimension = 'overworld') {
   const elevation = solarElevation(time),
     level = daylight(time),
@@ -26,6 +44,8 @@ export function environmentAt(time: number, dimension = 'overworld') {
   };
 }
 const CLOUD_MAX = 6000;
+/** Stars in the buffer; each quality preset draws the first few hundred of them. */
+const STAR_COUNT = 900;
 /** Smooth clumps of cloud on the 12-block grid; the same cells for every player and session. */
 function cloudCell(i: number, j: number): boolean {
   const lattice = (x: number, y: number, scale: number, seed: number) => {
@@ -48,7 +68,13 @@ export class Atmosphere {
   private readonly sky: THREE.Mesh<THREE.SphereGeometry, THREE.ShaderMaterial>;
   readonly sun = new THREE.Group();
   readonly moon: THREE.Mesh;
-  readonly stars: THREE.Points<THREE.BufferGeometry, THREE.PointsMaterial>;
+  readonly stars: THREE.Points<THREE.BufferGeometry, THREE.ShaderMaterial>;
+  private readonly sunDisk: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
+  private readonly sunHalo: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
+  private readonly meteor: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
+  private moonShown = -1;
+  private readonly glowTexture: THREE.DataTexture;
+  private readonly moonHalo: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
   readonly clouds: THREE.InstancedMesh<THREE.BoxGeometry, THREE.MeshBasicMaterial>;
   readonly hemisphere = new THREE.HemisphereLight('#e1eef2', '#718466', 2);
   readonly keyLight = new THREE.DirectionalLight('#ffecc5', 1.8);
@@ -61,18 +87,21 @@ export class Atmosphere {
   private readonly bottom = new THREE.Color();
   private readonly mix = new THREE.Color();
   private readonly sunDirection = new THREE.Vector3();
-  private readonly moonTexture: THREE.CanvasTexture;
+  private readonly moonTexture: THREE.DataTexture;
   private readonly matrix = new THREE.Matrix4();
   private readonly pos = new THREE.Vector3();
   private readonly scale = new THREE.Vector3();
   private readonly rotation = new THREE.Quaternion();
+  private readonly axisX = new THREE.Vector3();
+  private readonly axisY = new THREE.Vector3();
+  private readonly axisZ = new THREE.Vector3();
   state = environmentAt(6000);
   dimension = 'overworld';
   radius = 3;
   constructor(scene: THREE.Scene, light = new SharedLight()) {
     this.light = light;
     this.sky = new THREE.Mesh(
-      new THREE.SphereGeometry(360, 16, 10),
+      new THREE.SphereGeometry(360, 24, 14),
       new THREE.ShaderMaterial({
         side: THREE.BackSide,
         depthWrite: false,
@@ -80,26 +109,59 @@ export class Atmosphere {
         uniforms: {
           top: { value: new THREE.Color() },
           bottom: { value: new THREE.Color() },
-          voxelSunDir: light.sunDir,
-          voxelGlow: light.glow,
-          voxelGlowPower: light.glowPower,
+          /** 0‥1 how visible the stars are; the Milky Way fades with them. */
+          nightStars: { value: 0 },
+          /** Turn of the star dome (radians), so the band keeps to its stars. */
+          starSpin: { value: 0 },
+          ...light.uniforms(),
         },
         vertexShader:
           'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-        fragmentShader:
-          // Horizon to zenith, a little darker below the horizon, and a glow around the sun that
-          // the terrain fog shares (warm at dawn and dusk).
-          'varying vec3 vP;uniform vec3 top;uniform vec3 bottom;uniform vec3 voxelSunDir;uniform vec3 voxelGlow;uniform float voxelGlowPower;' +
-          'void main(){vec3 d=normalize(vP);float h=clamp(d.y,0.,1.);vec3 c=mix(bottom,top,pow(h,.5));' +
-          'c*=1.-clamp(-d.y*3.,0.,1.)*.18;float s=max(dot(d,voxelSunDir),0.);' +
-          'c=mix(c,voxelGlow,(pow(s,6.)*.85+pow(s,2.)*.15)*voxelGlowPower*(1.-h*.55));' +
-          'gl_FragColor=vec4(c,1.);\n#include <colorspace_fragment>\n}',
+        fragmentShader: /* glsl */ `
+          varying vec3 vP; uniform vec3 top; uniform vec3 bottom;
+          uniform float nightStars; uniform float starSpin;
+          ${SHARED_GLSL}
+          float hash31(vec3 p){ p = fract(p * .1031); p += dot(p, p.yzx + 33.33); return fract((p.x + p.y) * p.z); }
+          float vnoise(vec3 x){
+            vec3 i = floor(x), f = fract(x); f = f * f * (3. - 2. * f);
+            return mix(
+              mix(mix(hash31(i), hash31(i + vec3(1,0,0)), f.x), mix(hash31(i + vec3(0,1,0)), hash31(i + vec3(1,1,0)), f.x), f.y),
+              mix(mix(hash31(i + vec3(0,0,1)), hash31(i + vec3(1,0,1)), f.x), mix(hash31(i + vec3(0,1,1)), hash31(i + vec3(1,1,1)), f.x), f.y), f.z);
+          }
+          void main(){
+            vec3 d = normalize(vP);
+            float h = clamp(d.y, 0., 1.);
+            vec3 c = mix(bottom, top, pow(h, .5));
+            c *= 1. - clamp(-d.y * 3., 0., 1.) * .18;
+            float s = max(dot(d, voxelSunDir), 0.);
+            // A glow around the sun that the fog of the land shares (warm at dawn and dusk).
+            c = mix(c, voxelGlow, (pow(s, 6.) * .85 + pow(s, 2.) * .15) * voxelGlowPower * (1. - h * .55));
+            // Dawn and dusk: gold, rose and violet layered along the horizon.
+            c = voxelTwilightBand(c, d);
+            // The glare right round the sun.
+            c += voxelGlow * pow(s, 40.) * (.16 + .5 * voxelTwilight) * step(.001, voxelGlowPower);
+            // Night: the Milky Way, a soft mottled band along the great circle the stars crowd round.
+            if (nightStars > .01 && d.y > -.05) {
+              float cs = cos(starSpin), sn = sin(starSpin);
+              vec3 q = vec3(cs * d.x - sn * d.z, d.y, sn * d.x + cs * d.z);
+              float dist = dot(q, vec3(0., -.7833, .6216));
+              float n1 = vnoise(q * 6.), n2 = vnoise(q * 15. + 7.);
+              float clump = .4 + .6 * (n1 * .65 + n2 * .35);
+              float core = exp(-dist * dist / .02), wide = exp(-dist * dist / .09);
+              float m = (core * .75 + wide * .25) * clump * smoothstep(-.02, .2, d.y);
+              c += vec3(.30, .36, .62) * m * .3 * nightStars;
+              // Lanes of dust split the core.
+              c -= vec3(.04, .05, .07) * core * smoothstep(.5, 1., n2 * .75 + n1 * .25) * nightStars * .8;
+            }
+            gl_FragColor = vec4(c, 1.);
+            #include <colorspace_fragment>
+          }`,
       }),
     );
     this.sky.renderOrder = -100;
     this.group.add(this.sky);
     const disk = new THREE.Mesh(
-      new THREE.PlaneGeometry(13, 13),
+      new THREE.PlaneGeometry(26, 26),
       new THREE.MeshBasicMaterial({
         color: '#fff0b5',
         fog: false,
@@ -107,67 +169,137 @@ export class Atmosphere {
         depthWrite: false,
       }),
     );
+    const glow = new THREE.DataTexture(glowPixels(64), 64, 64, THREE.RGBAFormat);
+    glow.magFilter = THREE.LinearFilter;
+    glow.minFilter = THREE.LinearFilter;
+    glow.generateMipmaps = false;
+    glow.needsUpdate = true;
+    this.glowTexture = glow;
     const halo = new THREE.Mesh(
-      new THREE.PlaneGeometry(24, 24),
+      new THREE.PlaneGeometry(110, 110),
       new THREE.MeshBasicMaterial({
+        map: glow,
         color: '#ffdd98',
-        opacity: 0.09,
+        opacity: 0.5,
         transparent: true,
+        blending: THREE.AdditiveBlending,
         fog: false,
         toneMapped: false,
         depthWrite: false,
       }),
     );
     halo.position.z = -0.1;
+    this.sunDisk = disk;
+    this.sunHalo = halo;
     this.sun.add(halo, disk);
-    this.sun.renderOrder = -90;
+    // A nested group's own renderOrder outranks its children's, so the group must stay at 0 or
+    // the sky sphere would be painted over the disk; the order is set on the two meshes instead.
+    disk.renderOrder = -90;
+    halo.renderOrder = -91;
     this.group.add(this.sun);
-    const pixels = new Uint8ClampedArray(1024);
-    for (let y = 0; y < 16; y++)
-      for (let x = 0; x < 16; x++) {
-        const crater = (x > 3 && x < 7 && y > 8 && y < 12) || (x > 9 && x < 13 && y > 3 && y < 7),
-          n = crater ? 170 : pixelNoise(x, y) > 0.75 ? 210 : 231;
-        pixels.set([n, Math.min(255, n + 8), Math.min(255, n + 14), 255], (y * 16 + x) * 4);
-      }
-    this.moonTexture = new THREE.CanvasTexture(pixelCanvas(pixels));
+    // Eight phases in one 4×2 atlas; the picture shown follows the day (see `update`).
+    this.moonTexture = new THREE.DataTexture(
+      moonAtlasPixels(),
+      MOON_ATLAS.width,
+      MOON_ATLAS.height,
+      THREE.RGBAFormat,
+    );
     this.moonTexture.colorSpace = THREE.SRGBColorSpace;
     this.moonTexture.magFilter = THREE.NearestFilter;
     this.moonTexture.minFilter = THREE.NearestFilter;
     this.moonTexture.generateMipmaps = false;
+    this.moonTexture.repeat.set(1 / MOON_ATLAS.cols, 1 / MOON_ATLAS.rows);
+    this.moonTexture.needsUpdate = true;
     this.moon = new THREE.Mesh(
-      new THREE.PlaneGeometry(11, 11),
+      new THREE.PlaneGeometry(22, 22),
       new THREE.MeshBasicMaterial({
         map: this.moonTexture,
+        transparent: true,
         fog: false,
         toneMapped: false,
         depthWrite: false,
       }),
     );
     this.moon.renderOrder = -90;
+    this.moonHalo = new THREE.Mesh(
+      new THREE.PlaneGeometry(80, 80),
+      new THREE.MeshBasicMaterial({
+        map: glow,
+        color: '#8fa8d8',
+        opacity: 0.3,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        fog: false,
+        toneMapped: false,
+        depthWrite: false,
+      }),
+    );
+    this.moonHalo.renderOrder = -92;
+    this.moonHalo.position.z = -0.1;
+    this.moon.add(this.moonHalo);
     this.group.add(this.moon);
-    const positions = new Float32Array(380 * 3);
-    for (let i = 0; i < 380; i++) {
-      const a = pixelNoise(i, 1, 47) * Math.PI * 2,
-        h = 0.07 + pixelNoise(i, 2, 83) * 0.93,
-        r = Math.sqrt(1 - h * h);
-      positions.set([Math.cos(a) * r * 310, h * 310, Math.sin(a) * r * 310], i * 3);
-    }
+    const field = buildStarField(STAR_COUNT);
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('position', new THREE.BufferAttribute(field.positions, 3));
+    geometry.setAttribute('starColor', new THREE.BufferAttribute(field.colors, 3));
+    geometry.setAttribute('starPhase', new THREE.BufferAttribute(field.phases, 1));
+    geometry.setAttribute('starSize', new THREE.BufferAttribute(field.sizes, 1));
     this.stars = new THREE.Points(
       geometry,
-      new THREE.PointsMaterial({
-        color: '#c3d5ed',
-        size: 1.8,
-        sizeAttenuation: false,
+      new THREE.ShaderMaterial({
         transparent: true,
         depthWrite: false,
         fog: false,
-        toneMapped: false,
+        uniforms: {
+          time: { value: 0 },
+          opacity: { value: 1 },
+          pixelRatio: { value: 1 },
+          twinkle: { value: 1 },
+        },
+        vertexShader: /* glsl */ `
+          attribute vec3 starColor; attribute float starPhase; attribute float starSize;
+          uniform float time; uniform float pixelRatio; uniform float twinkle;
+          varying vec3 vColor; varying float vShimmer;
+          void main(){
+            vColor = starColor;
+            float wave = sin(time * (1.3 + starPhase * 2.4) + starPhase * 40.);
+            vShimmer = 1. - twinkle * (.2 + .22 * starPhase) * (.5 + .5 * wave);
+            gl_PointSize = starSize * pixelRatio;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.);
+          }`,
+        fragmentShader: /* glsl */ `
+          uniform float opacity; varying vec3 vColor; varying float vShimmer;
+          void main(){ gl_FragColor = vec4(vColor * vShimmer, opacity); }`,
       }),
     );
     this.stars.renderOrder = -95;
     this.group.add(this.stars);
+    // A shooting star now and then: one thin additive streak, placed from a pure function.
+    this.meteor = new THREE.Mesh(
+      new THREE.PlaneGeometry(1, 1),
+      new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite: false,
+        depthTest: false,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        uniforms: { fade: { value: 0 } },
+        vertexShader:
+          'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+        fragmentShader: /* glsl */ `
+          varying vec2 vUv; uniform float fade;
+          void main(){
+            float along = vUv.x, across = 1. - abs(vUv.y * 2. - 1.);
+            float a = pow(along, 3.) * smoothstep(0., .55, across) * fade;
+            vec3 c = mix(vec3(.55, .72, 1.), vec3(1.), pow(along, 8.));
+            gl_FragColor = vec4(c * a, 1.);
+          }`,
+      }),
+    );
+    this.meteor.renderOrder = -94;
+    this.meteor.frustumCulled = false;
+    this.meteor.visible = false;
+    this.group.add(this.meteor);
     // One flat layer of 12-block cells at y 128 that drifts with the wind, as in the reference.
     // It is anchored to the world, so walking under a cloud leaves it where it is; runs of
     // cells in a row share one box, so the whole sky stays ONE instanced draw.
@@ -209,6 +341,8 @@ export class Atmosphere {
     reduced: boolean,
     medium = 'air',
     weather: { rain: number; thunder: number; flash: number } = { rain: 0, thunder: 0, flash: 0 },
+    /** The world tick (for the phase of the moon) and the renderer's pixel ratio (for star size). */
+    extra: { tick?: number; pixelRatio?: number } = {},
   ) {
     this.dimension = dimension;
     const e = (this.state = environmentAt(time, dimension)),
@@ -256,9 +390,7 @@ export class Atmosphere {
       this.fog.near = 0.6;
       this.fog.far = medium === 'water' ? 12 : 4;
     }
-    this.sunDirection
-      .set(-Math.cos(e.angle), Math.sin(e.angle), Math.cos(e.angle) * 0.18)
-      .normalize();
+    sunDirectionAt(e.angle, this.sunDirection);
     const light = this.light;
     light.sunDir.value.copy(this.sunDirection);
     if (e.elevation < -0.05) light.sunDir.value.negate();
@@ -268,6 +400,13 @@ export class Atmosphere {
       ? (0.16 + e.twilight * 0.7) * (1 - rain) * Math.min(1, e.level * 3)
       : 0;
     light.horizon.value.copy(this.bottom);
+    light.twilight.value = normal ? e.twilight * (1 - rain) : 0;
+    // The sun reddens and its halo swells as it meets the horizon.
+    const dusk = light.twilight.value;
+    this.sunDisk.material.color.set('#fff0b5').lerp(this.mix.set('#ffab5e'), dusk * 0.85);
+    this.sunHalo.material.color.set('#ffdd98').lerp(this.mix.set('#ff8f4a'), dusk);
+    this.sunHalo.material.opacity = 0.42 + dusk * 0.3;
+    this.sunHalo.scale.setScalar(1 + dusk * 0.9);
     this.sun.position.copy(this.sunDirection).multiplyScalar(240);
     this.sun.visible = e.sun;
     this.moon.position.copy(this.sunDirection).multiplyScalar(-245);
@@ -278,8 +417,26 @@ export class Atmosphere {
     this.moon.lookAt(camera.position);
     this.stars.visible = e.stars > 0.005;
     this.stars.material.opacity = e.stars * 0.88;
+    const star = this.stars.material.uniforms;
+    star.opacity.value = this.stars.material.opacity;
+    star.time.value = phase;
+    star.pixelRatio.value = extra.pixelRatio ?? 1;
+    star.twinkle.value = reduced ? 0 : 1;
     this.stars.rotation.y = e.angle * 0.25;
+    const sky = this.sky.material.uniforms;
+    sky.nightStars.value = e.stars * 0.88;
+    sky.starSpin.value = this.stars.rotation.y;
     this.stars.geometry.setDrawRange(0, QUALITY[quality.preset].stars);
+    // The moon shows the phase of the day; the atlas is 4×2 pictures.
+    const moonPhase = moonPhaseAt(extra.tick ?? 0);
+    if (moonPhase !== this.moonShown) {
+      this.moonShown = moonPhase;
+      const { col, row } = moonCell(moonPhase);
+      this.moonTexture.offset.set(col / MOON_ATLAS.cols, row / MOON_ATLAS.rows);
+      // A thin moon has a thin halo, a new moon none.
+      this.moonHalo.material.opacity = 0.04 + 0.26 * moonLit(moonPhase);
+    }
+    this.placeMeteor(phase, e.stars > 0.4 && !reduced ? e.stars : 0);
     this.clouds.visible = e.clouds && quality.clouds;
     if (this.clouds.visible)
       this.layClouds(
@@ -306,6 +463,28 @@ export class Atmosphere {
     this.keyLight.position.copy(this.sunDirection).multiplyScalar(e.level < 0.08 ? -100 : 100);
     this.keyLight.target.position.copy(camera.position);
     this.keyLight.target.updateMatrixWorld();
+  }
+  /** Puts the shooting star of the moment on the dome, or hides it. */
+  private placeMeteor(seconds: number, night: number) {
+    const m = night > 0 ? meteorAt(seconds) : null;
+    this.meteor.visible = m !== null;
+    if (!m) return;
+    const radius = 300,
+      length = 70;
+    const head = this.pos.set(m.head[0], m.head[1], m.head[2]),
+      tangent = this.scale.set(m.tangent[0], m.tangent[1], m.tangent[2]);
+    // Basis of the streak: long axis along its travel, front face towards the eye.
+    const z = this.axisZ.copy(head).negate(),
+      x = this.axisX.copy(tangent).addScaledVector(z, -tangent.dot(z)).normalize(),
+      y = this.axisY.crossVectors(z, x);
+    this.matrix.makeBasis(x, y, z);
+    this.meteor.quaternion.setFromRotationMatrix(this.matrix);
+    this.meteor.scale.set(length, 1.3, 1);
+    this.meteor.position
+      .copy(head)
+      .multiplyScalar(radius)
+      .addScaledVector(x, -length / 2);
+    this.meteor.material.uniforms.fade.value = m.fade * night;
   }
   /** Rebuilds the cloud cells only when the camera (or the wind) crosses a cell. */
   private layClouds(eye: THREE.Vector3, drift: number, size: number) {
@@ -349,6 +528,7 @@ export class Atmosphere {
     for (const m of materials) m.dispose();
     this.clouds.dispose();
     this.moonTexture.dispose();
+    this.glowTexture.dispose();
     this.group.removeFromParent();
   }
 }

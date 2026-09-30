@@ -95,6 +95,7 @@ export function mountUI() {
           <div class="setting-row"><label for="clouds">Облака<span>Один пакет отрисовки на всё небо</span></label><input id="clouds" type="checkbox" checked/></div>
           <div class="setting-row"><label for="far-terrain">Дальние земли<span>Упрощённый рельеф за чанками: горы и берега до горизонта</span></label><select id="far-terrain"><option value="0">Выкл</option><option value="256">256 блоков</option><option value="512">512 блоков</option><option value="1024" selected>1024 блока</option><option value="2048">2048 блоков</option></select></div>
           <div class="setting-row"><label for="shaders">Лёгкие шейдеры<span>Солнечный свет, блики на воде, свечение у горизонта. Почти бесплатно</span></label><input id="shaders" type="checkbox" checked/></div>
+          <div class="setting-row"><label for="post">Кинематографичный кадр<span>Свечение солнца, лавы и факелов, виньетка, цвет по времени суток, вода и боль. Один проход поверх кадра</span></label><input id="post" type="checkbox" checked/></div>
         </div>
         <div class="settings-group"><div class="settings-section-title">Персонаж</div>
           <div class="skin-row"><canvas id="settings-avatar" class="avatar-canvas" aria-label="Облик персонажа"></canvas><div class="skin-controls">
