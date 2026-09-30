@@ -363,7 +363,13 @@ export class PostFX {
       previous = r.getRenderTarget(),
       info = { ...r.info.render };
     r.autoClear = false;
-    // The finished frame, as it stands in the canvas.
+    // The finished frame, as it stands in the canvas. three's copy writes into whatever texture
+    // is bound on the ACTIVE unit, but its state cache skips the bind when it believes unit 0
+    // already holds `frame` (it does, from last frame's composite pass) and so leaves another
+    // unit active: the copy then hit a bloom target and raised INVALID_VALUE. Make unit 0
+    // active and forget its binding so the bind is real.
+    r.state.activeTexture(r.getContext().TEXTURE0);
+    r.state.unbindTexture();
     r.copyFramebufferToTexture(frame);
     // Bright parts → quarter size, blurred; then eighth size, blurred again for a wide halo.
     this.bright.uniforms.tSource.value = frame;
