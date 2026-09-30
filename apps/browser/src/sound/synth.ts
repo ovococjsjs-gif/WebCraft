@@ -40,12 +40,12 @@ function classify(def: BlockDefinition): Material {
   const key = def.key;
   if (def.fluid) return 'water';
   if (/glass|ice|glowstone|end_portal_frame|sea_lantern|beacon/.test(key)) return 'glass';
-  if (/wool|bed|carpet|cactus|sponge|cake/.test(key)) return 'cloth';
+  if (/wool|bed|carpet|cactus|sponge|cake|slime/.test(key)) return 'cloth';
   if (/leaves/.test(key)) return 'leaves';
   if (/iron_block|gold_block|anvil|hopper|rail|cauldron|brewing_stand/.test(key)) return 'metal';
   if (/snow/.test(key)) return 'snow';
   if (/gravel|clay|soul_sand|farmland/.test(key)) return 'gravel';
-  if (/sand/.test(key) && !/sandstone/.test(key)) return 'sand';
+  if ((/sand/.test(key) && !/sandstone/.test(key)) || /concrete_powder/.test(key)) return 'sand';
   if (/grass|podzol|mycelium|hay/.test(key) && !def.shape) return 'grass';
   if (/dirt|coarse/.test(key)) return 'dirt';
   if (

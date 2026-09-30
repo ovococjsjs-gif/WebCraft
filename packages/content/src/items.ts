@@ -1,6 +1,13 @@
 /** Items are a separate registry from blocks; both use original `lab:` keys. */
-import { BLOCKS, BLOCK_H, FIRST_ROUND_H_BLOCK, registry as blocks } from './blocks';
-import { DYE_COLORS, H_SPRITE_COUNT, SPRITE_H } from './sprites-h';
+import {
+  BLOCKS,
+  BLOCK_H,
+  FIRST_ROUND_H_BLOCK,
+  FIRST_ROUND_I_BLOCK,
+  registry as blocks,
+} from './blocks';
+import { DYE_COLORS, SPRITE_H } from './sprites-h';
+import { EXTRA_DYES, I_SPRITE_COUNT, SPRITE_I } from './sprites-i';
 export type ToolKind = 'pickaxe' | 'axe' | 'shovel' | 'sword' | 'hoe';
 export interface ToolStats {
   readonly kind: ToolKind;
@@ -205,7 +212,7 @@ const SPRITE = {
   ghastTear: 89,
   spiderEye: 90,
 } as const;
-export const SPRITE_COUNT = H_SPRITE_COUNT;
+export const SPRITE_COUNT = I_SPRITE_COUNT;
 /** The bare-handed numbers every attack starts from. */
 export const FIST: AttackStats = { damage: 1, speed: 4 };
 /** 1.12 armour points and durability for the iron set. */
@@ -1033,6 +1040,45 @@ definitions.push({
 for (const def of BLOCKS)
   if (
     def.id >= FIRST_ROUND_H_BLOCK &&
+    def.id < FIRST_ROUND_I_BLOCK &&
+    def.placeable !== false &&
+    !definitions.some((item) => item.key === def.key)
+  )
+    blockItem(def.key);
+
+/* ============================================================================ round I (0.13)
+ * The missing dyes, the squid's ink and what a rabbit gives; then the round I blocks as items.
+ * Appended last, so every older id stays put. */
+{
+  const dyeSprites = [SPRITE_I.grayDye, SPRITE_I.blackDye, SPRITE_I.brownDye];
+  EXTRA_DYES.forEach(([color, name], i) => material(`lab:${color}_dye`, name, dyeSprites[i]));
+  material('lab:ink_sac', 'Чернильный мешок', SPRITE_I.inkSac);
+  const meat = (key: string, name: string, sprite: number, nutrition: number, saturation: number) =>
+    definitions.push({
+      id: next++,
+      key,
+      name,
+      maxStack: 64,
+      sprite,
+      food: { nutrition, saturation },
+    });
+  meat('lab:raw_rabbit', 'Крольчатина', SPRITE_I.rawRabbit, 3, 1.8);
+  meat('lab:cooked_rabbit', 'Жареная крольчатина', SPRITE_I.cookedRabbit, 5, 6);
+  definitions.push({
+    id: next++,
+    key: 'lab:rabbit_stew',
+    name: 'Рагу из кролика',
+    maxStack: 1,
+    sprite: SPRITE_I.rabbitStew,
+    food: { nutrition: 10, saturation: 12 },
+    leaves: 'lab:bowl',
+  });
+  material('lab:rabbit_hide', 'Кроличья шкурка', SPRITE_I.rabbitHide);
+  material('lab:rabbit_foot', 'Кроличья лапка', SPRITE_I.rabbitFoot);
+}
+for (const def of BLOCKS)
+  if (
+    def.id >= FIRST_ROUND_I_BLOCK &&
     def.placeable !== false &&
     !definitions.some((item) => item.key === def.key)
   )

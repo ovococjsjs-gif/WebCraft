@@ -110,6 +110,8 @@ export function creativeTab(item: ItemDefinition): CreativeTab | null {
     if (kind === 'door' || key.endsWith('_trapdoor') || key.endsWith('_fence_gate'))
       return 'redstone';
     if (key.endsWith('_carpet')) return 'decoration';
+    if (key.endsWith('_stained_glass') || /:(sea_lantern|slime_block|wet_sponge|sponge)$/.test(key))
+      return 'decoration';
     if (DECORATION_BLOCKS.has(key) || def.shape || kind === 'fence' || kind === 'pane')
       return 'decoration';
     if (key.endsWith('_leaves')) return 'decoration';

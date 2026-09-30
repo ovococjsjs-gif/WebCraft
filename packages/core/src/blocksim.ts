@@ -39,6 +39,17 @@ export const FIRE_SPREAD_CHANCE = 12;
 export const TNT_RADIUS = 4;
 /** Ticks between the fuse being lit and the blast. */
 export const TNT_FUSE = 80;
+/** Most water cells a sponge drinks, and how many steps through water it reaches. */
+const SPONGE_LIMIT = 65;
+const SPONGE_REACH = 7;
+const SIX_FACES = [
+  [1, 0, 0],
+  [-1, 0, 0],
+  [0, 1, 0],
+  [0, -1, 0],
+  [0, 0, 1],
+  [0, 0, -1],
+] as const;
 /** Flames alive at once; above this the fire stops spreading instead of growing without end. */
 export const MAX_FIRE_CELLS = 4096;
 
@@ -107,8 +118,54 @@ export class BlockSimulation {
     return below.solid || below.fluid !== undefined;
   }
 
+  /**
+   * Concrete powder sets into concrete as soon as water touches any of its six faces. Called for
+   * the cell that changed and for each neighbour, so both a poured bucket and a placed block work.
+   */
+  private harden(x: number, y: number, z: number): void {
+    const to = registry.get(this.world.getBlock(x, y, z)).hardensTo;
+    if (to === undefined) return;
+    for (const [dx, dy, dz] of SIX_FACES)
+      if (registry.get(this.world.getBlock(x + dx, y + dy, z + dz)).fluid === 'water') {
+        this.write(x, y, z, to);
+        return;
+      }
+  }
+
+  /**
+   * A sponge drinks the water around it: every water cell reachable through water within six
+   * steps, at most 65 of them, is removed, and a sponge that drank anything turns wet.
+   */
+  private absorb(x: number, y: number, z: number): void {
+    const wet = registry.get(this.world.getBlock(x, y, z)).absorbs;
+    if (wet === undefined) return;
+    const seen = new Set<string>([BlockSimulation.key(x, y, z)]);
+    const queue: [number, number, number, number][] = [[x, y, z, 0]];
+    let drunk = 0;
+    for (let head = 0; head < queue.length && drunk < SPONGE_LIMIT; head++) {
+      const [cx, cy, cz, steps] = queue[head];
+      for (const [dx, dy, dz] of SIX_FACES) {
+        const nx = cx + dx,
+          ny = cy + dy,
+          nz = cz + dz,
+          key = BlockSimulation.key(nx, ny, nz);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        if (registry.get(this.world.getBlock(nx, ny, nz)).fluid !== 'water') continue;
+        this.write(nx, ny, nz, BLOCK.AIR);
+        drunk++;
+        if (steps + 1 < SPONGE_REACH) queue.push([nx, ny, nz, steps + 1]);
+        if (drunk >= SPONGE_LIMIT) break;
+      }
+    }
+    if (drunk > 0) this.write(x, y, z, wet);
+  }
+
   /** Called after any block change: neighbours may start or stop falling. */
   onBlockChange(x: number, y: number, z: number): void {
+    this.harden(x, y, z);
+    this.absorb(x, y, z);
+    for (const [dx, dy, dz] of SIX_FACES) this.harden(x + dx, y + dy, z + dz);
     for (const [dx, dy, dz] of [
       [0, 1, 0],
       [1, 0, 0],

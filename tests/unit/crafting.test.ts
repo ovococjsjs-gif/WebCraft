@@ -43,8 +43,9 @@ describe('recipe registry', () => {
     }
     // Shapeless: six plank kinds, bone meal, blaze powder, magma cream, the eye of ender, and
     // unpacking hay, iron and gold blocks; round H adds 38 more (storage blocks, nuggets, seeds,
-    // soups, dyes and dyed wool).
-    expect(RECIPES.filter((recipe) => recipe.kind === 'shapeless').length).toBe(51);
+    // soups, dyes and dyed wool); round I adds 22 (three dye mixes, sixteen concrete powders,
+    // the slime, bone and sponge recipes and the leather of rabbit hides).
+    expect(RECIPES.filter((recipe) => recipe.kind === 'shapeless').length).toBe(73);
     expect(recipeById('magma_cream')?.result).toEqual(['lab:magma_cream', 1]);
     expect(recipeById('bone_meal')?.result).toEqual(['lab:bone_meal', 3]);
   });

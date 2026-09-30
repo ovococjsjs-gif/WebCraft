@@ -6,6 +6,7 @@
  */
 import { pixelNoise } from './pixel-art';
 import { roundHSprites } from './item-art-h';
+import { roundISprites } from './item-art-i';
 
 /** outline, dark, mid, light, highlight */
 type Ramp = readonly [number, number, number, number, number];
@@ -1157,26 +1158,24 @@ const SPRITES: Record<number, () => Uint8ClampedArray> = {
     ),
 };
 
-Object.assign(
-  SPRITES,
-  roundHSprites({
-    sprite,
-    along,
-    tool,
-    darken,
-    handle,
-    WOOD,
-    IRON,
-    GOLD,
-    HELMET: HELMET_ROWS,
-    CHESTPLATE: CHESTPLATE_ROWS,
-    LEGGINGS: LEGGINGS_ROWS,
-    BOOTS: BOOTS_ROWS,
-    LUMP,
-    PILE,
-    ORB,
-  }),
-);
+const ART_KIT = {
+  sprite,
+  along,
+  tool,
+  darken,
+  handle,
+  WOOD,
+  IRON,
+  GOLD,
+  HELMET: HELMET_ROWS,
+  CHESTPLATE: CHESTPLATE_ROWS,
+  LEGGINGS: LEGGINGS_ROWS,
+  BOOTS: BOOTS_ROWS,
+  LUMP,
+  PILE,
+  ORB,
+};
+Object.assign(SPRITES, roundHSprites(ART_KIT), roundISprites(ART_KIT));
 
 /** Pixels for an item sprite, or null to keep the older painter. */
 export function itemSpritePixels(sprite: number): Uint8ClampedArray | null {

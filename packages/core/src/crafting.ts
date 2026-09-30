@@ -106,6 +106,29 @@ const WOOL_NAMES: readonly [string, string][] = [
   ['red', 'Красная'],
   ['black', 'Чёрная'],
 ];
+/** The dye that colours a thing of each of the sixteen colours: bone meal is white, lapis blue. */
+const DYE_OF: Record<string, string> = {
+  white: 'lab:bone_meal',
+  blue: 'lab:lapis',
+  ...Object.fromEntries(
+    [
+      'orange',
+      'magenta',
+      'light_blue',
+      'yellow',
+      'lime',
+      'pink',
+      'gray',
+      'light_gray',
+      'cyan',
+      'purple',
+      'brown',
+      'green',
+      'red',
+      'black',
+    ].map((color) => [color, `lab:${color}_dye`]),
+  ),
+};
 const TOOL_MATERIALS: Record<string, string> = {
   wood: PLANKS,
   stone: 'lab:cobblestone',
@@ -178,6 +201,7 @@ export const RECIPES: readonly Recipe[] = Object.freeze([
   ...utilityRecipes(),
   ...buildingRecipes(),
   ...roundHRecipes(),
+  ...roundIRecipes(),
 ]);
 
 /** Every log gives four planks of its own tree. */
@@ -818,6 +842,262 @@ function roundHRecipes(): Recipe[] {
   }
   return recipes;
 }
+/**
+ * Round I (0.13): the missing dyes, concrete and its powder, stained glass and panes, terracotta
+ * in every colour, the polished stones, red sandstone, prismarine, slime, bone and wart blocks,
+ * and the doors, trapdoors and gates of the woods that had none.
+ */
+function roundIRecipes(): Recipe[] {
+  const recipes: Recipe[] = [
+    shapeless(
+      'dye_gray_mix',
+      'Серый краситель',
+      2,
+      ['lab:black_dye', 'lab:bone_meal'],
+      ['lab:gray_dye', 2],
+    ),
+    shapeless(
+      'dye_brown_mix',
+      'Коричневый краситель',
+      2,
+      ['lab:red_dye', 'lab:green_dye'],
+      ['lab:brown_dye', 2],
+    ),
+    shapeless('dye_black_ink', 'Чёрный краситель', 2, ['lab:ink_sac'], ['lab:black_dye', 1]),
+  ];
+  for (const [color, name] of WOOL_NAMES) {
+    const dye = DYE_OF[color];
+    const masculine =
+      name === 'Голубая' ? 'Голубой' : name === 'Синяя' ? 'Синий' : name.replace(/ая$/, 'ый');
+    const neuter = name === 'Синяя' ? 'Синее' : name.replace(/ая$/, 'ое');
+    recipes.push(
+      shapeless(
+        `concrete_powder_${color}`,
+        `${masculine} цементный порошок`,
+        3,
+        [
+          'lab:sand',
+          'lab:sand',
+          'lab:sand',
+          'lab:sand',
+          'lab:gravel',
+          'lab:gravel',
+          'lab:gravel',
+          'lab:gravel',
+          dye,
+        ],
+        [`lab:${color}_concrete_powder`, 8],
+      ),
+      shaped(
+        `stained_glass_${color}`,
+        `${neuter} окрашенное стекло`,
+        3,
+        ['GGG', 'GDG', 'GGG'],
+        { G: 'lab:glass', D: dye },
+        [`lab:${color}_stained_glass`, 8],
+      ),
+      shaped(
+        `stained_glass_pane_${color}`,
+        `${name} окрашенная стеклянная панель`,
+        3,
+        ['GGG', 'GGG'],
+        { G: `lab:${color}_stained_glass` },
+        [`lab:${color}_stained_glass_pane`, 16],
+      ),
+      shaped(
+        `terracotta_dyed_${color}`,
+        `${name} терракота`,
+        3,
+        ['TTT', 'TDT', 'TTT'],
+        { T: 'lab:terracotta', D: dye },
+        [`lab:terracotta_${color}`, 8],
+      ),
+    );
+  }
+  const stones: [string, string, string, string, string][] = [
+    [
+      'granite',
+      'lab:granite',
+      'Полированный гранит',
+      'Ступени из полированного гранита',
+      'Плита из полированного гранита',
+    ],
+    [
+      'diorite',
+      'lab:diorite',
+      'Полированный диорит',
+      'Ступени из полированного диорита',
+      'Плита из полированного диорита',
+    ],
+    [
+      'andesite',
+      'lab:andesite',
+      'Полированный андезит',
+      'Ступени из полированного андезита',
+      'Плита из полированного андезита',
+    ],
+  ];
+  for (const [stone, rough, name, stairs, slab] of stones) {
+    const polished = `lab:polished_${stone}`;
+    recipes.push(
+      shaped(`polished_${stone}`, name, 2, ['MM', 'MM'], { M: rough }, [polished, 4]),
+      shaped(`polished_${stone}_stairs`, stairs, 3, ['M  ', 'MM ', 'MMM'], { M: polished }, [
+        `lab:polished_${stone}_stairs`,
+        4,
+      ]),
+      shaped(`polished_${stone}_slab`, slab, 3, ['MMM'], { M: polished }, [
+        `lab:polished_${stone}_slab`,
+        6,
+      ]),
+    );
+  }
+  const RS = 'lab:red_sandstone';
+  recipes.push(
+    shaped('red_sandstone', 'Красный песчаник', 2, ['MM', 'MM'], { M: 'lab:red_sand' }, [RS, 1]),
+    shaped(
+      'red_sandstone_stairs',
+      'Ступени из красного песчаника',
+      3,
+      ['M  ', 'MM ', 'MMM'],
+      { M: RS },
+      ['lab:red_sandstone_stairs', 4],
+    ),
+    shaped('red_sandstone_slab', 'Плита из красного песчаника', 3, ['MMM'], { M: RS }, [
+      'lab:red_sandstone_slab',
+      6,
+    ]),
+    shaped(
+      'chiseled_red_sandstone',
+      'Резной красный песчаник',
+      3,
+      ['S', 'S'],
+      { S: 'lab:red_sandstone_slab' },
+      ['lab:chiseled_red_sandstone', 1],
+    ),
+    // Prismarine has no sea monument to be found in yet: it is cut from stone and lapis.
+    shaped('prismarine', 'Призмарин', 2, ['SL', 'LS'], { S: 'lab:stone', L: 'lab:lapis' }, [
+      'lab:prismarine',
+      4,
+    ]),
+    shaped('prismarine_bricks', 'Призмариновые кирпичи', 2, ['MM', 'MM'], { M: 'lab:prismarine' }, [
+      'lab:prismarine_bricks',
+      4,
+    ]),
+    shaped(
+      'dark_prismarine',
+      'Тёмный призмарин',
+      3,
+      ['PPP', 'PDP', 'PPP'],
+      { P: 'lab:prismarine', D: 'lab:black_dye' },
+      ['lab:dark_prismarine', 8],
+    ),
+    shaped(
+      'sea_lantern',
+      'Морской фонарь',
+      3,
+      ['PGP', 'GPG', 'PGP'],
+      { P: 'lab:prismarine', G: 'lab:glowstone_dust' },
+      ['lab:sea_lantern', 1],
+    ),
+    shaped(
+      'prismarine_brick_stairs',
+      'Ступени из призмариновых кирпичей',
+      3,
+      ['M  ', 'MM ', 'MMM'],
+      { M: 'lab:prismarine_bricks' },
+      ['lab:prismarine_brick_stairs', 4],
+    ),
+    shaped(
+      'prismarine_brick_slab',
+      'Плита из призмариновых кирпичей',
+      3,
+      ['MMM'],
+      { M: 'lab:prismarine_bricks' },
+      ['lab:prismarine_brick_slab', 6],
+    ),
+    shapeless(
+      'sponge',
+      'Губка',
+      2,
+      ['lab:wool', 'lab:wool', 'lab:yellow_dye', 'lab:yellow_dye'],
+      ['lab:sponge', 1],
+    ),
+    shaped('slime_block', 'Блок слизи', 3, ['SSS', 'SSS', 'SSS'], { S: 'lab:slimeball' }, [
+      'lab:slime_block',
+      1,
+    ]),
+    shapeless('slimeballs_back', 'Слизь', 2, ['lab:slime_block'], ['lab:slimeball', 9]),
+    shaped('bone_block', 'Костяной блок', 3, ['BBB', 'BBB', 'BBB'], { B: 'lab:bone_meal' }, [
+      'lab:bone_block',
+      1,
+    ]),
+    shapeless('bone_meal_back', 'Костная мука', 2, ['lab:bone_block'], ['lab:bone_meal', 9]),
+    shaped(
+      'nether_wart_block',
+      'Блок адского нароста',
+      3,
+      ['WWW', 'WWW', 'WWW'],
+      { W: 'lab:nether_wart' },
+      ['lab:nether_wart_block', 1],
+    ),
+    shaped(
+      'red_nether_bricks',
+      'Красный адский кирпич',
+      2,
+      ['WN', 'NW'],
+      { W: 'lab:nether_wart', N: 'lab:netherbrick' },
+      ['lab:red_nether_bricks', 1],
+    ),
+    shaped(
+      'rabbit_stew',
+      'Рагу из кролика',
+      3,
+      [' R ', 'CPM', ' B '],
+      {
+        R: 'lab:cooked_rabbit',
+        C: 'lab:carrot',
+        P: 'lab:baked_potato',
+        M: 'lab:brown_mushroom',
+        B: 'lab:bowl',
+      },
+      ['lab:rabbit_stew', 1],
+    ),
+    shaped('leather_from_hides', 'Кожа', 2, ['HH', 'HH'], { H: 'lab:rabbit_hide' }, [
+      'lab:leather',
+      1,
+    ]),
+  );
+  const woods: [string, string, string, string][] = [
+    ['birch', 'Берёзовая дверь', 'Берёзовый люк', ''],
+    [
+      'jungle',
+      'Дверь из тропического дерева',
+      'Люк из тропического дерева',
+      'Калитка из тропического дерева',
+    ],
+    ['dark_oak', 'Дверь из тёмного дуба', 'Люк из тёмного дуба', 'Калитка из тёмного дуба'],
+    ['acacia', '', 'Акациевый люк', 'Акациевая калитка'],
+    ['spruce', '', 'Еловый люк', ''],
+  ];
+  for (const [wood, door, trapdoor, gate] of woods) {
+    const P = `lab:${wood}_planks`;
+    if (door)
+      recipes.push(
+        shaped(`${wood}_door`, door, 3, ['PP', 'PP', 'PP'], { P }, [`lab:${wood}_door`, 3]),
+      );
+    recipes.push(
+      shaped(`${wood}_trapdoor`, trapdoor, 3, ['PPP', 'PPP'], { P }, [`lab:${wood}_trapdoor`, 2]),
+    );
+    if (gate)
+      recipes.push(
+        shaped(`${wood}_fence_gate`, gate, 3, ['SPS', 'SPS'], { P, S: 'lab:stick' }, [
+          `lab:${wood}_fence_gate`,
+          1,
+        ]),
+      );
+  }
+  return recipes;
+}
 export const SMELTING: readonly SmeltingRecipe[] = Object.freeze([
   {
     id: 'iron_ingot',
@@ -854,6 +1134,30 @@ export const SMELTING: readonly SmeltingRecipe[] = Object.freeze([
     ticks: 200,
     xp: 0.1,
   },
+  ...WOOL_NAMES.map(([color, name]): SmeltingRecipe => ({
+    id: `glazed_terracotta_${color}`,
+    name: `${name} глазурованная терракота`,
+    input: `lab:terracotta_${color}`,
+    result: [`lab:${color}_glazed_terracotta`, 1],
+    ticks: 200,
+    xp: 0.1,
+  })),
+  {
+    id: 'dry_sponge',
+    name: 'Губка',
+    input: 'lab:wet_sponge',
+    result: ['lab:sponge', 1],
+    ticks: 200,
+    xp: 0.15,
+  },
+  {
+    id: 'smooth_red_sandstone',
+    name: 'Гладкий красный песчаник',
+    input: 'lab:red_sandstone',
+    result: ['lab:smooth_red_sandstone', 1],
+    ticks: 200,
+    xp: 0.1,
+  },
   ...WOODS.map((wood): SmeltingRecipe => ({
     id: `charcoal_${wood}`,
     name: 'Древесный уголь',
@@ -880,6 +1184,7 @@ export const SMELTING: readonly SmeltingRecipe[] = Object.freeze([
   ...(
     [
       ['baked_potato', 'Печёный картофель', 'lab:potato', 'lab:baked_potato', 0.35],
+      ['cooked_rabbit', 'Жареная крольчатина', 'lab:raw_rabbit', 'lab:cooked_rabbit', 0.35],
       ['cooked_fish', 'Жареная рыба', 'lab:fish', 'lab:cooked_fish', 0.35],
       ['cooked_salmon', 'Жареный лосось', 'lab:salmon', 'lab:cooked_salmon', 0.35],
       ['brick', 'Кирпич', 'lab:clay_ball', 'lab:brick', 0.3],

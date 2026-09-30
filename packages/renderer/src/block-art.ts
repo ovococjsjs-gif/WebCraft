@@ -3,8 +3,14 @@
  * a readable motif (bark streaks, growth rings, boards, bricks, leaf clusters), in the same
  * spirit as `pixel-art.ts`: original art, no external assets, stable for a given tile name.
  */
-import { extraTileName, type ExtraTileName, type HTileName } from '../../content/src/tiles';
+import {
+  extraTileName,
+  type ExtraTileName,
+  type HTileName,
+  type ITileName,
+} from '../../content/src/tiles';
 import { H_PAINTERS } from './block-art-h';
+import { I_PAINTERS } from './block-art-i';
 import { pixelNoise } from './pixel-art';
 
 type RGB = readonly [number, number, number];
@@ -41,7 +47,7 @@ export function grain(p: Palette, seed: number, cx = 3, cy = 2): (x: number, y: 
   };
 }
 /** Stone with scattered crystals: granite, diorite, andesite. */
-function speckled(p: Palette, seed: number, density: number): Tile {
+export function speckled(p: Palette, seed: number, density: number): Tile {
   return new Tile().fill((x, y) => {
     const fine = n2(x, y, seed),
       blob = n2(Math.floor(x / 2), Math.floor(y / 2), seed + 3);
@@ -239,7 +245,7 @@ function mushroom(cap: Palette, spots: boolean): Tile {
 }
 
 /* --------------------------------------------------------------- the table */
-const PAINTERS: Record<Exclude<ExtraTileName, HTileName>, () => Tile> = {
+const PAINTERS: Record<Exclude<ExtraTileName, HTileName | ITileName>, () => Tile> = {
   grass_snowy_side: () =>
     edge(
       dirt(),
@@ -544,7 +550,7 @@ const PAINTERS: Record<Exclude<ExtraTileName, HTileName>, () => Tile> = {
     }),
 };
 
-function doorArt(p: Palette, upper: boolean): Tile {
+export function doorArt(p: Palette, upper: boolean): Tile {
   const frame = p[3];
   return new Tile().fill((x, y) => {
     if (x === 0 || x === 15 || (upper ? y === 0 : y === 15)) return frame;
@@ -565,6 +571,8 @@ export function extraTilePixels(tile: number): Uint8ClampedArray | null {
   const name = extraTileName(tile);
   if (!name) return null;
   const painter =
-    (PAINTERS as Partial<Record<ExtraTileName, () => Tile>>)[name] ?? H_PAINTERS[name as HTileName];
+    (PAINTERS as Partial<Record<ExtraTileName, () => Tile>>)[name] ??
+    (H_PAINTERS as Partial<Record<ExtraTileName, () => Tile>>)[name as HTileName] ??
+    I_PAINTERS[name as ITileName];
   return painter().data;
 }

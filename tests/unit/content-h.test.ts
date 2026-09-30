@@ -6,6 +6,24 @@ import { RECIPES, SMELTING, recipeById } from '../../packages/core/src/crafting'
 import { woolItem } from '../../packages/core/src/mobs';
 import { WorldSession } from '../../packages/core/src/session';
 import type { PlantSystem } from '../../packages/core/src/farming';
+const WOOL_NAMES_I = [
+  'white',
+  'orange',
+  'magenta',
+  'light_blue',
+  'yellow',
+  'lime',
+  'pink',
+  'gray',
+  'light_gray',
+  'cyan',
+  'purple',
+  'blue',
+  'brown',
+  'green',
+  'red',
+  'black',
+];
 
 /** Round H: the missing 1.12 items and blocks behave like the reference ones. */
 function setup() {
@@ -252,6 +270,13 @@ describe('round H · items and recipes', () => {
       'lab:jungle_sapling',
       'lab:acacia_sapling',
       'lab:dark_oak_sapling',
+      // Round I: what squids and rabbits drop, concrete (powder set by water) and a drunk sponge.
+      'lab:ink_sac',
+      'lab:raw_rabbit',
+      'lab:rabbit_hide',
+      'lab:rabbit_foot',
+      'lab:wet_sponge',
+      ...WOOL_NAMES_I.map((color) => `lab:${color}_concrete`),
     ]);
     const missing: string[] = [];
     for (const item of ITEMS) {

@@ -83,6 +83,61 @@ export const H_TILE_NAMES = [
   'oak_trapdoor',
 ] as const;
 export type HTileName = (typeof H_TILE_NAMES)[number];
+/** The ten terracotta colours the mesa biomes do not use; the other six already have tiles. */
+export const NEW_TERRACOTTA = [
+  'magenta',
+  'light_blue',
+  'lime',
+  'pink',
+  'gray',
+  'cyan',
+  'purple',
+  'blue',
+  'green',
+  'black',
+] as const;
+/**
+ * Round I tiles (0.13): concrete and its powder, stained glass, glazed terracotta in sixteen
+ * patterns, the ten new terracottas, polished stones, red sandstone, prismarine, a few curious
+ * blocks and the doors and trapdoors of the woods that had none. Appended after round H.
+ */
+export const I_TILE_NAMES = [
+  ...WOOL_COLORS.map(([color]) => `concrete_${color}` as const),
+  ...WOOL_COLORS.map(([color]) => `concrete_powder_${color}` as const),
+  ...WOOL_COLORS.map(([color]) => `stained_glass_${color}` as const),
+  ...WOOL_COLORS.map(([color]) => `glazed_${color}` as const),
+  ...NEW_TERRACOTTA.map((color) => `terracotta_${color}` as const),
+  'polished_granite',
+  'polished_diorite',
+  'polished_andesite',
+  'red_sandstone_top',
+  'red_sandstone_side',
+  'red_sandstone_bottom',
+  'chiseled_red_sandstone',
+  'prismarine',
+  'prismarine_bricks',
+  'dark_prismarine',
+  'sea_lantern',
+  'sponge',
+  'wet_sponge',
+  'slime_block',
+  'bone_block_top',
+  'bone_block_side',
+  'nether_wart_block',
+  'red_nether_bricks',
+  'birch_door_lower',
+  'birch_door_upper',
+  'jungle_door_lower',
+  'jungle_door_upper',
+  'dark_oak_door_lower',
+  'dark_oak_door_upper',
+  'spruce_trapdoor',
+  'birch_trapdoor',
+  'jungle_trapdoor',
+  'acacia_trapdoor',
+  'dark_oak_trapdoor',
+] as const;
+export type ITileName = (typeof I_TILE_NAMES)[number];
 export const EXTRA_TILE_NAMES = [
   'grass_snowy_side',
   'podzol_top',
@@ -162,6 +217,7 @@ export const EXTRA_TILE_NAMES = [
   'red_mushroom_cap',
   'vine',
   ...H_TILE_NAMES,
+  ...I_TILE_NAMES,
 ] as const;
 export type ExtraTileName = (typeof EXTRA_TILE_NAMES)[number];
 export const TILE = Object.freeze(

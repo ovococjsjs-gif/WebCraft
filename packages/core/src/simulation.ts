@@ -35,6 +35,7 @@ import {
   playerOverlapsBlock,
   EYE_HEIGHT,
   onLadder,
+  type BodyMods,
   type PlayerInput,
 } from './player';
 import { lookDirection, raycast, type BlockHit } from './raycast';
@@ -419,6 +420,8 @@ export class Simulation {
    */
   naturalSpawns = false;
   input: PlayerInput = { ...EMPTY_INPUT };
+  /** What status effects and slime do to the body this tick; `tickPlayer` reads and fills it. */
+  readonly body: BodyMods = {};
   cursor: Slot = null;
   /** Ticks until held creative mining may break the next block (the reference waits five). */
   private creativeBreakDelay = 0;
@@ -1011,6 +1014,7 @@ export class Simulation {
         this.player,
         { ...this.input, sprint: this.sprinting },
         this.movementSpeedScale(),
+        this.body,
       );
       // Running into a wall ends a sprint, as it does in the reference.
       if (walled && this.sprinting && !this.player.flying) this.sprinting = false;
@@ -1693,6 +1697,11 @@ export class Simulation {
       this.gameMode === 'creative' ||
       onLadder(this.world, this.player.position)
     ) {
+      survival.fallDistance = 0;
+      return;
+    }
+    if (this.body.bounced) {
+      // Thrown back up by slime: the fall is over, and it did no harm.
       survival.fallDistance = 0;
       return;
     }

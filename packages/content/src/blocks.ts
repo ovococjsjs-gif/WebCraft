@@ -7,7 +7,7 @@ import {
   type Facing,
   type Neighbours,
 } from './shapes';
-import { TILE, WOOL_COLORS } from './tiles';
+import { NEW_TERRACOTTA, TILE, WOOL_COLORS } from './tiles';
 export type RenderLayer = 'opaque' | 'cutout' | 'transparent';
 export type ToolType = 'pickaxe' | 'axe' | 'shovel' | 'sword' | 'hoe';
 /** Minimum tool tier able to harvest: 1 wood, 2 stone, 3 iron. */
@@ -109,6 +109,14 @@ export interface BlockDefinition {
   readonly tint?: 'grass' | 'foliage';
   /** Replaced by a placed block instead of blocking it: snow layers, grass, flowers. */
   readonly replaceable?: boolean;
+  /** Concrete powder: the block it sets into the moment water touches it. */
+  readonly hardensTo?: number;
+  /** A sponge: the wet block it becomes once it has drunk the water around it. */
+  readonly absorbs?: number;
+  /** Drawn without ambient occlusion, as glass is: a clear block has no dark corners. */
+  readonly flatShade?: boolean;
+  /** A body landing on it takes no fall damage and is thrown back up: slime. */
+  readonly bouncy?: boolean;
 }
 export type WoodKind = 'oak' | 'spruce' | 'birch' | 'jungle' | 'acacia' | 'dark_oak';
 export type RedstoneRole =
@@ -1761,6 +1769,249 @@ export const BLOCK_H = {
   MOSSY_COBBLESTONE_WALL: wall('mossy_cobblestone_wall', 'Мшистая булыжная стена', 129),
 } as const;
 
+/* ============================================================================================
+ * Round I (0.13): colour families (concrete and its powder, stained glass and panes, terracotta
+ * in every colour, glazed terracotta), polished stones, red sandstone, prismarine, a sponge,
+ * slime and a few curious blocks, and the doors, trapdoors and gates of the woods that had none.
+ * Appended after round H so every older id stays put; saves store keys either way.
+ * ========================================================================================== */
+export const FIRST_ROUND_I_BLOCK = nextExtraId;
+const neuter = (female: string) => (female === 'Синяя' ? 'Синее' : female.replace(/ая$/, 'ое'));
+const tileOf = (name: string): number => (TILE as Readonly<Record<string, number>>)[name];
+const I_CONCRETE = WOOL_COLORS.map(([color, female]) =>
+  add(`${color}_concrete`, `${woolAdj(female)} бетон`, tileOf(`concrete_${color}`), 1.8, rock),
+);
+const I_WET_SPONGE = add('wet_sponge', 'Мокрая губка', TILE.wet_sponge, 0.6, { tool: 'hoe' });
+const T_RSS = [TILE.red_sandstone_top, TILE.red_sandstone_side, TILE.red_sandstone_bottom] as const;
+const solidTiles = (tile: number) => [tile, tile, tile] as const;
+export const BLOCK_I = {
+  CONCRETE: I_CONCRETE,
+  CONCRETE_POWDER: WOOL_COLORS.map(([color, female], i) =>
+    add(
+      `${color}_concrete_powder`,
+      `${woolAdj(female)} цементный порошок`,
+      tileOf(`concrete_powder_${color}`),
+      0.5,
+      { tool: 'shovel', falling: true, hardensTo: I_CONCRETE[i] },
+    ),
+  ),
+  STAINED_GLASS: WOOL_COLORS.map(([color, female]) =>
+    add(
+      `${color}_stained_glass`,
+      `${neuter(female)} окрашенное стекло`,
+      tileOf(`stained_glass_${color}`),
+      0.3,
+      { occludes: false, layer: 'transparent', flatShade: true },
+    ),
+  ),
+  STAINED_GLASS_PANE: WOOL_COLORS.map(([color, female]) =>
+    add(
+      `${color}_stained_glass_pane`,
+      `${female} окрашенная стеклянная панель`,
+      tileOf(`stained_glass_${color}`),
+      0.3,
+      { occludes: false, layer: 'transparent', model: { kind: 'pane' }, connects: 'pane' },
+    ),
+  ),
+  /** The ten colours the mesa does not use; the six mesa terracottas keep their own keys. */
+  TERRACOTTA: NEW_TERRACOTTA.map((color) => {
+    const female = WOOL_COLORS.find(([key]) => key === color)![1];
+    return add(
+      `terracotta_${color}`,
+      `${female} терракота`,
+      tileOf(`terracotta_${color}`),
+      1.25,
+      rock,
+    );
+  }),
+  GLAZED_TERRACOTTA: WOOL_COLORS.map(([color, female]) =>
+    add(
+      `${color}_glazed_terracotta`,
+      `${female} глазурованная терракота`,
+      tileOf(`glazed_${color}`),
+      1.4,
+      rock,
+    ),
+  ),
+  POLISHED_GRANITE: add(
+    'polished_granite',
+    'Полированный гранит',
+    TILE.polished_granite,
+    1.5,
+    rock,
+  ),
+  POLISHED_GRANITE_STAIRS: stairs(
+    'polished_granite_stairs',
+    'Ступени из полированного гранита',
+    solidTiles(TILE.polished_granite),
+    1.5,
+    rock,
+  ),
+  POLISHED_GRANITE_SLAB: slab(
+    'polished_granite_slab',
+    'Плита из полированного гранита',
+    solidTiles(TILE.polished_granite),
+    1.5,
+    'polished_granite',
+    rock,
+  ),
+  POLISHED_DIORITE: add(
+    'polished_diorite',
+    'Полированный диорит',
+    TILE.polished_diorite,
+    1.5,
+    rock,
+  ),
+  POLISHED_DIORITE_STAIRS: stairs(
+    'polished_diorite_stairs',
+    'Ступени из полированного диорита',
+    solidTiles(TILE.polished_diorite),
+    1.5,
+    rock,
+  ),
+  POLISHED_DIORITE_SLAB: slab(
+    'polished_diorite_slab',
+    'Плита из полированного диорита',
+    solidTiles(TILE.polished_diorite),
+    1.5,
+    'polished_diorite',
+    rock,
+  ),
+  POLISHED_ANDESITE: add(
+    'polished_andesite',
+    'Полированный андезит',
+    TILE.polished_andesite,
+    1.5,
+    rock,
+  ),
+  POLISHED_ANDESITE_STAIRS: stairs(
+    'polished_andesite_stairs',
+    'Ступени из полированного андезита',
+    solidTiles(TILE.polished_andesite),
+    1.5,
+    rock,
+  ),
+  POLISHED_ANDESITE_SLAB: slab(
+    'polished_andesite_slab',
+    'Плита из полированного андезита',
+    solidTiles(TILE.polished_andesite),
+    1.5,
+    'polished_andesite',
+    rock,
+  ),
+  RED_SANDSTONE: add('red_sandstone', 'Красный песчаник', T_RSS, 0.8, rock),
+  CHISELED_RED_SANDSTONE: add(
+    'chiseled_red_sandstone',
+    'Резной красный песчаник',
+    [TILE.red_sandstone_top, TILE.chiseled_red_sandstone, TILE.red_sandstone_top],
+    0.8,
+    rock,
+  ),
+  SMOOTH_RED_SANDSTONE: add(
+    'smooth_red_sandstone',
+    'Гладкий красный песчаник',
+    solidTiles(TILE.red_sandstone_top),
+    0.8,
+    rock,
+  ),
+  RED_SANDSTONE_STAIRS: stairs(
+    'red_sandstone_stairs',
+    'Ступени из красного песчаника',
+    T_RSS,
+    0.8,
+    rock,
+  ),
+  RED_SANDSTONE_SLAB: slab(
+    'red_sandstone_slab',
+    'Плита из красного песчаника',
+    T_RSS,
+    0.8,
+    'red_sandstone',
+    rock,
+  ),
+  PRISMARINE: add('prismarine', 'Призмарин', TILE.prismarine, 1.5, rock),
+  PRISMARINE_BRICKS: add(
+    'prismarine_bricks',
+    'Призмариновые кирпичи',
+    TILE.prismarine_bricks,
+    1.5,
+    rock,
+  ),
+  DARK_PRISMARINE: add('dark_prismarine', 'Тёмный призмарин', TILE.dark_prismarine, 1.5, rock),
+  SEA_LANTERN: add('sea_lantern', 'Морской фонарь', TILE.sea_lantern, 0.3, { light: 15 }),
+  PRISMARINE_BRICK_STAIRS: stairs(
+    'prismarine_brick_stairs',
+    'Ступени из призмариновых кирпичей',
+    solidTiles(TILE.prismarine_bricks),
+    1.5,
+    rock,
+  ),
+  PRISMARINE_BRICK_SLAB: slab(
+    'prismarine_brick_slab',
+    'Плита из призмариновых кирпичей',
+    solidTiles(TILE.prismarine_bricks),
+    1.5,
+    'prismarine_bricks',
+    rock,
+  ),
+  WET_SPONGE: I_WET_SPONGE,
+  SPONGE: add('sponge', 'Губка', TILE.sponge, 0.6, { tool: 'hoe', absorbs: I_WET_SPONGE }),
+  SLIME_BLOCK: add('slime_block', 'Блок слизи', TILE.slime_block, 0, {
+    occludes: false,
+    layer: 'transparent',
+    flatShade: true,
+    bouncy: true,
+  }),
+  BONE_BLOCK: add(
+    'bone_block',
+    'Костяной блок',
+    [TILE.bone_block_top, TILE.bone_block_side, TILE.bone_block_top],
+    2,
+    rock,
+  ),
+  NETHER_WART_BLOCK: add('nether_wart_block', 'Блок адского нароста', TILE.nether_wart_block, 1, {
+    tool: 'hoe',
+  }),
+  RED_NETHER_BRICKS: add(
+    'red_nether_bricks',
+    'Красный адский кирпич',
+    TILE.red_nether_bricks,
+    2,
+    rock,
+  ),
+  BIRCH_DOOR: door('birch_door', 'Берёзовая дверь', TILE.birch_door_lower, TILE.birch_door_upper),
+  JUNGLE_DOOR: door(
+    'jungle_door',
+    'Дверь из тропического дерева',
+    TILE.jungle_door_lower,
+    TILE.jungle_door_upper,
+  ),
+  DARK_OAK_DOOR: door(
+    'dark_oak_door',
+    'Дверь из тёмного дуба',
+    TILE.dark_oak_door_lower,
+    TILE.dark_oak_door_upper,
+  ),
+  SPRUCE_TRAPDOOR: trapdoor('spruce_trapdoor', 'Еловый люк', TILE.spruce_trapdoor, { ...planks }),
+  BIRCH_TRAPDOOR: trapdoor('birch_trapdoor', 'Берёзовый люк', TILE.birch_trapdoor, { ...planks }),
+  JUNGLE_TRAPDOOR: trapdoor('jungle_trapdoor', 'Люк из тропического дерева', TILE.jungle_trapdoor, {
+    ...planks,
+  }),
+  ACACIA_TRAPDOOR: trapdoor('acacia_trapdoor', 'Акациевый люк', TILE.acacia_trapdoor, {
+    ...planks,
+  }),
+  DARK_OAK_TRAPDOOR: trapdoor('dark_oak_trapdoor', 'Люк из тёмного дуба', TILE.dark_oak_trapdoor, {
+    ...planks,
+  }),
+  JUNGLE_FENCE_GATE: gate(
+    'jungle_fence_gate',
+    'Калитка из тропического дерева',
+    TILE.jungle_planks,
+  ),
+  ACACIA_FENCE_GATE: gate('acacia_fence_gate', 'Акациевая калитка', TILE.acacia_planks),
+  DARK_OAK_FENCE_GATE: gate('dark_oak_fence_gate', 'Калитка из тёмного дуба', TILE.dark_oak_planks),
+} as const;
+
 export const BLOCKS: readonly BlockDefinition[] = Object.freeze([...BASE_BLOCKS, ...EXTRA_BLOCKS]);
 /** Kept for the tooling that still expects a flat list of placeable defaults. */
 export const HOTBAR = [
@@ -1844,7 +2095,7 @@ export function blockBoxes(
       return (
         o.connects === def.connects ||
         (o.solid && o.occludes && !o.model) ||
-        (def.connects === 'pane' && o.key === 'lab:glass') ||
+        (def.connects === 'pane' && (o.key === 'lab:glass' || o.key.endsWith('_stained_glass'))) ||
         (def.connects !== 'pane' && o.key.endsWith('_fence_gate'))
       );
     };

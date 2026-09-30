@@ -30,6 +30,24 @@ export interface PlayerState {
   flying: boolean;
   inWater: boolean;
 }
+/** What the status effects do to a body this tick; all optional, all zero by default. */
+export interface BodyMods {
+  /** Jump boost level: every level adds about a block to the height of a jump. */
+  jumpBoost?: number;
+  /** Levitation level: the body rises a block a second per level, gravity forgotten. */
+  levitation?: number;
+  /** Slow falling: the fall never gets faster than a gentle drift. */
+  slowFalling?: boolean;
+  /**
+   * Output: set by `tickPlayer` for the tick a body was thrown back up by slime. It lives here and
+   * not on the player, because the player's fields are exactly what a save file stores.
+   */
+  bounced?: boolean;
+}
+/** Speed of the drift down under slow falling, in blocks per second. */
+export const SLOW_FALL_SPEED = 1.6;
+/** Fraction of the landing speed a body keeps when it bounces off slime. */
+export const SLIME_BOUNCE = 0.8;
 export function createPlayer(position: Vec3): PlayerState {
   return {
     position: { ...position },
@@ -104,10 +122,12 @@ export function tickPlayer(
   player: PlayerState,
   input: PlayerInput,
   speedScale = 1,
+  mods: BodyMods = {},
 ): boolean {
   const p = player.position,
     v = player.velocity,
     dt = 0.05;
+  mods.bounced = false;
   player.inWater =
     registry.get(world.getBlock(Math.floor(p.x), Math.floor(p.y + 0.5), Math.floor(p.z))).fluid ===
     'water';
@@ -153,13 +173,15 @@ export function tickPlayer(
     if (input.jump) v.y = 3.6;
   } else {
     if (input.jump && player.onGround) {
-      v.y = 9;
+      v.y = 9 + 1.9 * (mods.jumpBoost ?? 0);
       if (input.sprint && input.forward > 0) {
         v.x -= Math.sin(input.yaw) * SPRINT_JUMP_BOOST;
         v.z -= Math.cos(input.yaw) * SPRINT_JUMP_BOOST;
       }
     }
-    v.y = Math.max(-55, v.y - 32 * dt);
+    if (mods.levitation) v.y += (mods.levitation - v.y) * 0.2;
+    else v.y = Math.max(-55, v.y - 32 * dt);
+    if (mods.slowFalling && !mods.levitation) v.y = Math.max(v.y, -SLOW_FALL_SPEED);
   }
   let dx = v.x * dt,
     dz = v.z * dt;
@@ -226,10 +248,22 @@ export function tickPlayer(
   if (Math.abs(actualX - dx) > EPS) v.x = 0;
   if (Math.abs(actualZ - dz) > EPS) v.z = 0;
   const dy = v.y * dt,
+    impact = v.y,
     actualY = moveAxis(world, p, 'y', dy);
   player.onGround = dy < 0 && Math.abs(actualY - dy) > EPS;
   // Descending onto the ground ends flight, as landing does in the reference creative mode.
   if (player.flying && player.onGround) player.flying = false;
   if (Math.abs(actualY - dy) > EPS) v.y = 0;
+  // Slime throws a falling body back up (crouching kills the bounce, as in the reference).
+  if (player.onGround && impact < -4 && !input.crouch && !player.flying && onSlime(world, p)) {
+    v.y = Math.min(16, -impact * SLIME_BOUNCE);
+    player.onGround = false;
+    mods.bounced = true;
+  }
   return walled;
+}
+/** True when the block right under the feet is slime. */
+function onSlime(world: VoxelWorld, p: Vec3): boolean {
+  return !!registry.get(world.getBlock(Math.floor(p.x), Math.floor(p.y - 0.05), Math.floor(p.z)))
+    .bouncy;
 }

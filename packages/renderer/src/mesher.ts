@@ -626,7 +626,7 @@ export function meshSection(
               continue;
             const axes = [0, 1, 2].filter((a) => face.n[a] === 0);
             const shades = face.v.map((v) => {
-              if (def.fluid || id === BLOCK.GLASS) return face.shade;
+              if (def.fluid || id === BLOCK.GLASS || def.flatShade) return face.shade;
               const base = [wx + face.n[0], wy + face.n[1], wz + face.n[2]];
               const a = [...base],
                 c = [...base],
